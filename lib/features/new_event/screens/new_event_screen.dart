@@ -2,20 +2,20 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:miaad/features/new_invitation/screens/success_screen.dart';
+import 'package:miaad/features/new_event/screens/success_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/colors.dart';
 import '../../contacts/models/contacts.dart';
 import '../models/invitation.dart';
 
-class NewInvitationScreen extends StatefulWidget {
-  const NewInvitationScreen({super.key});
+class NewEventScreen extends StatefulWidget {
+  const NewEventScreen({super.key});
 
   @override
-  State<NewInvitationScreen> createState() => _NewInvitationScreenState();
+  State<NewEventScreen> createState() => _NewEventScreenState();
 }
 
-class _NewInvitationScreenState extends State<NewInvitationScreen> {
+class _NewEventScreenState extends State<NewEventScreen> {
   bool _showForm = false;
   String? _selectedEventType;
   final TextEditingController _eventNameController = TextEditingController();

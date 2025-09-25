@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:miaad/core/constants/colors.dart';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import '../models/catering_items.dart';
 import 'catering_details_screen.dart';
 
@@ -23,198 +22,206 @@ class _CateringScreenState extends State<CateringScreen> {
   // Sample data
   final List<CateringItem> cateringItems = [
     CateringItem(
-      name: 'Deluxe Wedding Package',
-      price: 899.99,
-      image: 'https://via.placeholder.com/300x200/B39C9C/FFFFFF?text=Wedding+Package',
+      name: 'Coffee',
+      price: 12,
+      image: 'https://picsum.photos/seed/coffee/300/200', // CHANGED
       rating: 4.8,
       dateModified: DateTime.now().subtract(Duration(days: 2)),
       location: 'Riyadh',
-      eventType: 'Wedding',
+      eventTypes: ['Wedding', 'Baby Shower', 'Graduation'],
+      brand: 'Mahaseel Albon',
+      description: 'A smooth, rich coffee with bold flavor and a hint of chocolate. Freshly roasted for the perfect cup, every time.',
+    ),
+    CateringItem(
+      name: 'Tea Service',
+      price: 10,
+      image: 'https://picsum.photos/seed/tea/300/200', // CHANGED
+      rating: 4.5,
+      dateModified: DateTime.now().subtract(Duration(days: 1)),
+      location: 'Jeddah',
+      eventTypes: ['Corporate', 'Baby Shower'],
+      brand: 'Mahaseel Albon',
+      description: 'Premium tea selection with herbal and black varieties for any event.',
+    ),
+    CateringItem(
+      name: 'Deluxe Wedding Package',
+      price: 899.99,
+      image: 'https://picsum.photos/seed/weddingfood/300/200', // CHANGED
+      rating: 4.8,
+      dateModified: DateTime.now().subtract(Duration(days: 2)),
+      location: 'Riyadh',
+      eventTypes: ['Wedding'],
       brand: 'Elite Catering',
+      description: 'Luxurious catering for weddings with multi-course meals and desserts.',
+    ),
+    CateringItem(
+      name: 'Basic Wedding Catering',
+      price: 500,
+      image: 'https://picsum.photos/seed/weddingdinner/300/200', // CHANGED
+      rating: 4.3,
+      dateModified: DateTime.now().subtract(Duration(days: 4)),
+      location: 'Dammam',
+      eventTypes: ['Wedding'],
+      brand: 'Elite Catering',
+      description: 'Affordable yet elegant catering options for your special day.',
+    ),
+    CateringItem(
+      name: 'Premium Wedding Feast',
+      price: 1200,
+      image: 'https://picsum.photos/seed/feast/300/200', // CHANGED
+      rating: 4.9,
+      dateModified: DateTime.now().subtract(Duration(days: 3)),
+      location: 'Jeddah',
+      eventTypes: ['Wedding'],
+      brand: 'Elite Catering',
+      description: 'Exquisite dishes for large wedding celebrations.',
     ),
     CateringItem(
       name: 'Corporate Event Menu',
       price: 450.00,
-      image: 'https://via.placeholder.com/300x200/B39C9C/FFFFFF?text=Corporate+Menu',
+      image: 'https://picsum.photos/seed/corporateevent/300/200', // CHANGED
       rating: 4.5,
       dateModified: DateTime.now().subtract(Duration(days: 1)),
       location: 'Jeddah',
-      eventType: 'Corporate',
+      eventTypes: ['Corporate'],
       brand: 'Business Bites',
+      description: 'Professional catering for business meetings and events.',
+    ),
+    CateringItem(
+      name: 'Executive Lunch Box',
+      price: 300,
+      image: 'https://picsum.photos/seed/lunch/300/200', // CHANGED
+      rating: 4.4,
+      dateModified: DateTime.now().subtract(Duration(days: 5)),
+      location: 'Riyadh',
+      eventTypes: ['Corporate'],
+      brand: 'Business Bites',
+      description: 'Convenient lunch boxes for corporate teams.',
     ),
     CateringItem(
       name: 'Birthday Party Special',
       price: 299.99,
-      image: 'https://via.placeholder.com/300x200/B39C9C/FFFFFF?text=Birthday+Special',
+      image: 'https://picsum.photos/seed/birthdayparty/300/200', // CHANGED
       rating: 4.2,
       dateModified: DateTime.now().subtract(Duration(hours: 5)),
       location: 'Riyadh',
-      eventType: 'Birthday',
+      eventTypes: ['Birthday'],
       brand: 'Party Perfect',
+      description: 'Fun and festive catering for birthday celebrations.',
+    ),
+    CateringItem(
+      name: 'Kids Birthday Menu',
+      price: 200,
+      image: 'https://picsum.photos/seed/kidsparty/300/200', // CHANGED
+      rating: 4.6,
+      dateModified: DateTime.now().subtract(Duration(days: 6)),
+      location: 'Dammam',
+      eventTypes: ['Birthday'],
+      brand: 'Party Perfect',
+      description: 'Child-friendly meals and snacks for kids parties.',
     ),
     CateringItem(
       name: 'Traditional Arabic Feast',
       price: 750.00,
-      image: 'https://via.placeholder.com/300x200/B39C9C/FFFFFF?text=Arabic+Feast',
+      image: 'https://picsum.photos/seed/arabicfood/300/200', // CHANGED
       rating: 4.9,
       dateModified: DateTime.now().subtract(Duration(days: 3)),
       location: 'Dammam',
-      eventType: 'Traditional',
+      eventTypes: ['Traditional'],
       brand: 'Heritage Kitchen',
+      description: 'Authentic Arabic dishes for traditional gatherings.',
+    ),
+    CateringItem(
+      name: 'Family Gathering Meal',
+      price: 600,
+      image: 'https://picsum.photos/seed/familydinner/300/200', // CHANGED
+      rating: 4.7,
+      dateModified: DateTime.now().subtract(Duration(days: 7)),
+      location: 'Jeddah',
+      eventTypes: ['Traditional'],
+      brand: 'Heritage Kitchen',
+      description: 'Hearty meals for family and traditional events.',
+    ),
+    CateringItem(
+      name: 'Cultural Dinner',
+      price: 800,
+      image: 'https://picsum.photos/seed/dinner/300/200', // CHANGED
+      rating: 4.8,
+      dateModified: DateTime.now().subtract(Duration(days: 8)),
+      location: 'Riyadh',
+      eventTypes: ['Traditional'],
+      brand: 'Heritage Kitchen',
+      description: 'Cultural cuisine with a traditional twist.',
     ),
   ];
 
+  late List<CateringItem> filteredItems;
+
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              // Top Controls
-              Container(
-                margin: EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    // Sort and Filter buttons
-                    Expanded(
-                      child: Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: _showSortOptions,
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Sort',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 1,
-                              height: 30,
-                              color: Colors.grey.shade300,
-                            ),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    isFilterOpen = !isFilterOpen;
-                                  });
-                                },
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Filter',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+  void initState() {
+    super.initState();
+    filteredItems = cateringItems;
+    applyFilters();
+  }
 
-                    SizedBox(width: 16),
+  void applyFilters() {
+    setState(() {
+      filteredItems = cateringItems.where((item) {
+        final matchesLocation = selectedLocation == 'All' || item.location == selectedLocation;
+        final matchesEventType = selectedEventType == 'All' || item.eventTypes.contains(selectedEventType);
+        final matchesBrand = selectedBrand == 'All' || item.brand == selectedBrand;
+        final matchesBudget = item.price >= budgetMin && item.price <= budgetMax;
+        return matchesLocation && matchesEventType && matchesBrand && matchesBudget;
+      }).toList();
+    });
+  }
 
-                    // Grid/List View Toggle
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 4,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: IconButton(
-                        icon: Icon(
-                          isGridView ? Icons.list : Icons.grid_view,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            isGridView = !isGridView;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Items Grid/List
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: isGridView ? _buildGridView() : _buildListView(),
-                ),
-              ),
-            ],
-          ),
-
-          // Filter Sidebar
-          if (isFilterOpen) _buildFilterSidebar(),
-        ],
-      ),
-    );
+  Color? _getChipColor(String eventType) {
+    switch (eventType) {
+      case 'Wedding':
+        return Colors.lightBlue[100];
+      case 'Baby Shower':
+        return Colors.purple[100];
+      case 'Graduation':
+        return Colors.pink[100];
+      case 'Corporate':
+        return Colors.green[100];
+      case 'Birthday':
+        return Colors.orange[100];
+      case 'Traditional':
+        return Colors.brown[100];
+      default:
+        return Colors.grey[100];
+    }
   }
 
   Widget _buildGridView() {
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 0.8,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+        childAspectRatio: 0.6, // Adjusted for more content
       ),
-      itemCount: cateringItems.length,
+      itemCount: filteredItems.length,
       itemBuilder: (context, index) {
-        return _buildGridCard(cateringItems[index]);
+        return _buildGridCard(filteredItems[index]);
       },
     );
   }
 
   Widget _buildListView() {
     return ListView.builder(
-      itemCount: cateringItems.length,
+      itemCount: filteredItems.length,
       itemBuilder: (context, index) {
-        return _buildListCard(cateringItems[index]);
+        return _buildListCard(filteredItems[index]);
       },
     );
   }
 
   Widget _buildGridCard(CateringItem item) {
+    String username = item.brand.toLowerCase().replaceAll(' ', '');
+    String website = 'https://$username.com/';
     return GestureDetector(
       onTap: () => _navigateToDetails(item),
       child: Container(
@@ -229,88 +236,125 @@ class _CateringScreenState extends State<CateringScreen> {
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image
-            Expanded(
-              flex: 3,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Color(0xFFB39C9C),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                ),
-                width: double.infinity,
-                child: Center(
-                  child: Icon(
-                    Icons.restaurant,
-                    size: 40,
-                    color: Colors.white,
+        child: Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 150,
+                      child: CachedNetworkImage(
+                        imageUrl: item.image,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 150,
+                        placeholder: (context, url) => Container(
+                          width: double.infinity,
+                          height: 150,
+                          color: Colors.grey[200],
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          width: double.infinity,
+                          height: 150,
+                          color: Colors.grey[200],
+                          child: Center(child: Icon(Icons.error, color: Colors.red)),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Icon(
+                      Icons.favorite_border,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+              Flexible( // CHANGED: Make content take remaining space
+                child: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '@$username',
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 12,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible( // CHANGED: Prevent overflow in name
+                            child: Text(
+                              item.name,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          CircleAvatar(
+                            backgroundColor: Colors.teal[300],
+                            radius: 16,
+                            child: Icon(
+                              Icons.more,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        '${item.price.toStringAsFixed(0)} SAR at ${item.location}',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey.shade700,
+                        ),
+                        maxLines: 1, // CHANGED
+                        overflow: TextOverflow.ellipsis, // CHANGED
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        item.description,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
-            // Content
-            Expanded(
-              flex: 2,
-              child: Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.lightPrimary,
-                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(12)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      item.name,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      '\$${item.price.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 11,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.star, color: Colors.amber, size: 12),
-                        SizedBox(width: 2),
-                        Text(
-                          item.rating.toString(),
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildListCard(CateringItem item) {
+    String username = item.brand.toLowerCase().replaceAll(' ', '');
+    String website = 'https://$username.com/';
     return GestureDetector(
       onTap: () => _navigateToDetails(item),
       child: Container(
-        margin: EdgeInsets.only(bottom: 16),
-        padding: EdgeInsets.all(16),
+        margin: EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -323,72 +367,127 @@ class _CateringScreenState extends State<CateringScreen> {
           ],
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Image
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: Color(0xFFB39C9C),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.restaurant,
-                  size: 30,
-                  color: Colors.white,
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.horizontal(left: Radius.circular(12)),
+                  child: SizedBox(
+                    width: 120, // CHANGED: Reduce width to prevent overflow
+                    height: 180, // CHANGED: Reduce height to prevent overflow
+                    child: CachedNetworkImage(
+                      imageUrl: item.image,
+                      fit: BoxFit.cover,
+                      width: 120,
+                      height: 120,
+                      placeholder: (context, url) => Container(
+                        width: 120,
+                        height: 120,
+                        color: Colors.grey[200],
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        width: 120,
+                        height: 120,
+                        color: Colors.grey[200],
+                        child: Center(child: Icon(Icons.error, color: Colors.red)),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Icon(
+                    Icons.favorite_border,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
             ),
-            SizedBox(width: 16),
-
-            // Content
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    '\$${item.price.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.star, color: Colors.amber, size: 16),
-                      SizedBox(width: 4),
-                      Text(
-                        item.rating.toString(),
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 12,
-                        ),
+              child: Padding(
+                padding: EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '@$username',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
                       ),
-                      SizedBox(width: 16),
-                      Icon(Icons.location_on, color: Colors.grey, size: 14),
-                      SizedBox(width: 2),
-                      Text(
-                        item.location,
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 12,
+                    ),
+                    SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          item.name,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
+                        CircleAvatar(
+                          backgroundColor: Colors.teal[300],
+                          radius: 16,
+                          child: Icon(
+                            Icons.more,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      '${item.price.toStringAsFixed(0)} SAR at ${item.location}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade700,
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      item.description,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                      maxLines: 2, // CHANGED: Reduce maxLines to prevent overflow
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Suitable For',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: item.eventTypes.map((e) => Chip(
+                        label: Text('#$e'),
+                        backgroundColor: _getChipColor(e),
+                        labelStyle: TextStyle(fontSize: 12),
+                      )).toList(),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Find more $website',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 12,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -417,7 +516,6 @@ class _CateringScreenState extends State<CateringScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Container(
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -445,8 +543,6 @@ class _CateringScreenState extends State<CateringScreen> {
                 ],
               ),
             ),
-
-            // Filter Options
             Expanded(
               child: Padding(
                 padding: EdgeInsets.all(20),
@@ -454,40 +550,47 @@ class _CateringScreenState extends State<CateringScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Location Filter
                       _buildFilterSection('Location', selectedLocation, [
-                        'All', 'Riyadh', 'Jeddah', 'Dammam'
+                        'All',
+                        'Riyadh',
+                        'Jeddah',
+                        'Dammam'
                       ], (value) {
                         setState(() {
                           selectedLocation = value;
+                          applyFilters();
                         });
                       }),
-                  
                       SizedBox(height: 24),
-                  
-                      // Event Type Filter
                       _buildFilterSection('Event Type', selectedEventType, [
-                        'All', 'Wedding', 'Corporate', 'Birthday', 'Traditional'
+                        'All',
+                        'Wedding',
+                        'Corporate',
+                        'Birthday',
+                        'Traditional',
+                        'Baby Shower',
+                        'Graduation'
                       ], (value) {
                         setState(() {
                           selectedEventType = value;
+                          applyFilters();
                         });
                       }),
-                  
                       SizedBox(height: 24),
-                  
-                      // Brand Filter
                       _buildFilterSection('Brand', selectedBrand, [
-                        'All', 'Elite Catering', 'Business Bites', 'Party Perfect', 'Heritage Kitchen'
+                        'All',
+                        'Mahaseel Albon',
+                        'Elite Catering',
+                        'Business Bites',
+                        'Party Perfect',
+                        'Heritage Kitchen'
                       ], (value) {
                         setState(() {
                           selectedBrand = value;
+                          applyFilters();
                         });
                       }),
-                  
                       SizedBox(height: 24),
-                  
-                      // Budget Range
                       Text(
                         'Budget Range',
                         style: TextStyle(
@@ -500,21 +603,22 @@ class _CateringScreenState extends State<CateringScreen> {
                       RangeSlider(
                         values: RangeValues(budgetMin, budgetMax),
                         min: 0,
-                        max: 1000,
-                        divisions: 20,
+                        max: 1200,
+                        divisions: 24,
                         labels: RangeLabels(
-                          '\$${budgetMin.round()}',
-                          '\$${budgetMax.round()}',
+                          '${budgetMin.round()} SAR',
+                          '${budgetMax.round()} SAR',
                         ),
                         onChanged: (RangeValues values) {
                           setState(() {
                             budgetMin = values.start;
                             budgetMax = values.end;
+                            applyFilters();
                           });
                         },
                       ),
                       Text(
-                        '\$${budgetMin.round()} - \$${budgetMax.round()}',
+                        '${budgetMin.round()} - ${budgetMax.round()} SAR',
                         style: TextStyle(
                           color: Colors.grey.shade600,
                           fontSize: 14,
@@ -525,8 +629,6 @@ class _CateringScreenState extends State<CateringScreen> {
                 ),
               ),
             ),
-
-            // Apply Button
             Container(
               padding: EdgeInsets.all(20),
               child: SizedBox(
@@ -537,7 +639,6 @@ class _CateringScreenState extends State<CateringScreen> {
                     setState(() {
                       isFilterOpen = false;
                     });
-                    // Apply filters logic here
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).primaryColor,
@@ -610,16 +711,12 @@ class _CateringScreenState extends State<CateringScreen> {
                 ),
               ),
               SizedBox(height: 20),
-          
               _buildSortOption('Name (A-Z)', Icons.sort_by_alpha),
               _buildSortOption('Name (Z-A)', Icons.sort_by_alpha),
               _buildSortOption('Date Modified (Newest)', Icons.access_time),
               _buildSortOption('Date Modified (Oldest)', Icons.access_time),
               _buildSortOption('Price (Low to High)', Icons.attach_money),
               _buildSortOption('Price (High to Low)', Icons.attach_money),
-              _buildSortOption('Rating (High to Low)', Icons.star),
-              _buildSortOption('Rating (Low to High)', Icons.star),
-          
               SizedBox(height: 10),
             ],
           ),
@@ -634,11 +731,29 @@ class _CateringScreenState extends State<CateringScreen> {
       title: Text(title),
       onTap: () {
         Navigator.pop(context);
-        // Implement sorting logic here
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sorted by: $title')),
-        );
+        _sortList(title);
       },
+    );
+  }
+
+  void _sortList(String type) {
+    setState(() {
+      if (type == 'Name (A-Z)') {
+        filteredItems.sort((a, b) => a.name.compareTo(b.name));
+      } else if (type == 'Name (Z-A)') {
+        filteredItems.sort((a, b) => b.name.compareTo(a.name));
+      } else if (type == 'Date Modified (Newest)') {
+        filteredItems.sort((a, b) => b.dateModified.compareTo(a.dateModified));
+      } else if (type == 'Date Modified (Oldest)') {
+        filteredItems.sort((a, b) => a.dateModified.compareTo(b.dateModified));
+      } else if (type == 'Price (Low to High)') {
+        filteredItems.sort((a, b) => a.price.compareTo(b.price));
+      } else if (type == 'Price (High to Low)') {
+        filteredItems.sort((a, b) => b.price.compareTo(a.price));
+      }
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Sorted by: $type')),
     );
   }
 
@@ -647,6 +762,45 @@ class _CateringScreenState extends State<CateringScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => CateringDetailsScreen(item: item),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: Icon(isGridView ? Icons.view_list : Icons.grid_view),
+            onPressed: () {
+              setState(() {
+                isGridView = !isGridView;
+              });
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.sort),
+            onPressed: _showSortOptions,
+          ),
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () {
+              setState(() {
+                isFilterOpen = !isFilterOpen;
+              });
+            },
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: isGridView ? _buildGridView() : _buildListView(),
+          ),
+          if (isFilterOpen) _buildFilterSidebar(),
+        ],
       ),
     );
   }

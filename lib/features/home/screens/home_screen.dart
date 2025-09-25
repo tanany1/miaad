@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/colors.dart';
-import '../../new_invitation/models/invitation.dart';
+import '../../new_event/models/invitation.dart';
 import 'details_screen.dart';
 
 class HomeScreen extends StatefulWidget {

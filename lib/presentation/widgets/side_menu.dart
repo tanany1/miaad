@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:miaad/features/history/screens/history_screen.dart';
+import 'package:miaad/features/messages/screens/message_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../features/contacts/screens/contacts_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
@@ -55,6 +57,22 @@ class SideMenu extends StatelessWidget {
                 style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
               ),
               onTap: () => _navigateToPage(context, const ContactsScreen()),
+            ),
+            ListTile(
+              leading: Icon(Icons.history, color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
+              title: Text(
+                'My History',
+                style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
+              ),
+              onTap: () => _navigateToPage(context, const HistoryScreen()),
+            ),
+            ListTile(
+              leading: Icon(Icons.message, color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
+              title: Text(
+                'Messages',
+                style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
+              ),
+              onTap: () => _navigateToPage(context, const MessageScreen()),
             ),
             ListTile(
               leading: Icon(Icons.settings, color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),

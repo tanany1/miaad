@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/catering/screens/catering_screen.dart';
-import '../../features/new_invitation/screens/new_invitation_screen.dart';
+import '../../features/new_event/screens/new_event_screen.dart';
 import '../../features/invitation_card/screens/invitation_card_screen.dart';
-import '../../features/history/screens/history_screen.dart';
 import '../../features/notification/screens/notifications_screen.dart';
 import '../widgets/side_menu.dart';
 import '../../core/constants/colors.dart';
@@ -23,16 +22,14 @@ class _BottomNavBarState extends State<BottomNavBar> {
   static const List<Widget> _pages = <Widget>[
     HomeScreen(),
     CateringScreen(),
-    NewInvitationScreen(),
+    NewEventScreen(),
     InvitationCardScreen(),
-    HistoryScreen(),
   ];
   static const List<String> _pageLabels = <String>[
     'Home',
     'Catering',
-    'New Invitation',
-    'Invitation Card',
-    'History',
+    'New Event',
+    'New Card',
   ];
 
   void _onItemTapped(int index) {
@@ -110,15 +107,11 @@ class _BottomNavBarState extends State<BottomNavBar> {
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.add),
-                label: 'New Invitation',
+                label: 'New Event',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.card_giftcard),
-                label: 'Invitation Card',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.history),
-                label: 'History',
+                label: 'New Card',
               ),
             ],
             currentIndex: _selectedIndex,
