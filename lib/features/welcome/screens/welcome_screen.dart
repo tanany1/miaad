@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../../../presentation/navigation/bottom_nav_bar.dart';
+import '../../auth/login/screens/login_screen.dart';
+import '../../auth/register/screens/register_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   final ValueNotifier<ThemeMode> themeMode;
@@ -34,8 +34,6 @@ class WelcomeScreen extends StatelessWidget {
             child: Column(
               children: [
                 const Spacer(flex: 2),
-
-                // Avatar Circle
                 Container(
                   width: 120,
                   height: 120,
@@ -56,10 +54,7 @@ class WelcomeScreen extends StatelessWidget {
                     color: Colors.grey[400],
                   ),
                 ),
-
                 const SizedBox(height: 40),
-
-                // Welcome Text
                 const Text(
                   'Welcome!',
                   style: TextStyle(
@@ -68,12 +63,9 @@ class WelcomeScreen extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
-                // Subtitle Text
                 Text(
-                  'Thanks for joining! Access or create your account\nbelow and get started on your journey.',
+                  'Choose your role to get started.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
@@ -81,104 +73,18 @@ class WelcomeScreen extends StatelessWidget {
                     height: 1.5,
                   ),
                 ),
-
                 const Spacer(flex: 3),
-
-                // Buttons
                 Row(
                   children: [
-                    // Vendor Button
                     Expanded(
-                      child: Container(
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => BottomNavBar(
-                                  themeMode: themeMode,
-                                ),
-                              ),
-                            );
-                          },
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Text(
-                            'Vendor',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xff4fa6a8),
-                            ),
-                          ),
-                        ),
-                      ),
+                      child: _buildRoleButton(context, 'Vendor', true),
                     ),
-
                     const SizedBox(width: 16),
-
-                    // User Button
                     Expanded(
-                      child: Container(
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: const Color(0xff4fa6a8),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => BottomNavBar(
-                                  themeMode: themeMode,
-                                ),
-                              ),
-                            );
-                          },
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Text(
-                            'User',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
+                      child: _buildRoleButton(context, 'User', false),
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 50),
               ],
             ),
@@ -187,4 +93,75 @@ class WelcomeScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildRoleButton(BuildContext context, String role, bool isPrimary) {
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: isPrimary ? Colors.white.withOpacity(0.9) : const Color(0xff4fa6a8),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: TextButton(
+        onPressed: () {
+          _navigateToAuth(context, role);
+        },
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: Text(
+          role,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: isPrimary ? const Color(0xff4fa6a8) : Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _navigateToAuth(BuildContext context, String role) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Wrap(
+            children: <Widget>[
+              ListTile(
+                  leading: const Icon(Icons.login),
+                  title: const Text('Login'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => LoginScreen(role: role, themeMode: themeMode)),
+                    );
+                  }),
+              ListTile(
+                leading: const Icon(Icons.person_add),
+                title: const Text('Register'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => RegisterScreen(role: role, themeMode: themeMode)),
+                  );
+                },
+              ),
+            ],
+          );
+        });
+  }
 }
+
