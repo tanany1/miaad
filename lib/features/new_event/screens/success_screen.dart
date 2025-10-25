@@ -30,6 +30,8 @@ class SuccessScreen extends StatelessWidget {
                 : AppColors.lightPrimaryText,
           ),),
         backgroundColor: primaryColor,
+        // Hide the back button
+        automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -45,9 +47,10 @@ class SuccessScreen extends StatelessWidget {
                   : 'Invitation has been saved successfully',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,
                 color: isDarkMode
-                ? AppColors.darkPrimaryText
+                    ? AppColors.darkPrimaryText
                     : AppColors.lightPrimaryText,
               ),
+              textAlign: TextAlign.center, // <-- Added for better looks
             ),
             const SizedBox(height: 24),
             if (image != null) ...[
@@ -77,14 +80,20 @@ class SuccessScreen extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
+                // This pop will return to the HomeScreen
+                // because of the pushAndRemoveUntil used to get here
                 Navigator.pop(context);
               },
-              style: ElevatedButton.styleFrom(backgroundColor: primaryColor),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                minimumSize: const Size(double.infinity, 48), // <-- Make button bigger
+              ),
               child: Text('Okay',
                 style: TextStyle(
                   color: isDarkMode
                       ? AppColors.darkPrimaryText
                       : AppColors.lightPrimaryText,
+                  fontSize: 16, // <-- Added font size
                 ),),
             ),
           ],
@@ -93,3 +102,4 @@ class SuccessScreen extends StatelessWidget {
     );
   }
 }
+

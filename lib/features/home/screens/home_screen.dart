@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/colors.dart';
 import '../../new_event/models/invitation.dart';
 import 'details_screen.dart';
+import '../../new_event/screens/new_event_screen.dart'; // <-- IMPORT for editing
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -67,8 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
         : AppColors.lightSecondaryBackground;
 
     return Dismissible(
-      key: Key(invitation.hashCode.toString()),
-      // Unique key for each invitation
+      key: Key(invitation.eventName + invitation.date.toIso8601String()), // More unique key
       direction: DismissDirection.endToStart,
       background: Container(
         color: Colors.red,
@@ -77,25 +77,16 @@ class _HomeScreenState extends State<HomeScreen> {
         child: const Icon(Icons.delete, color: Colors.white, size: 30),
       ),
       confirmDismiss: (direction) async {
-        final shouldDelete = await _showDeleteConfirmationDialog(
-          _invitations.indexOf(invitation),
-        );
-        return shouldDelete ??
-            false; // Return true if deletion is confirmed, false otherwise
+        // Find index safely
+        int index = _invitations.indexOf(invitation);
+        if (index != -1) {
+          final shouldDelete = await _showDeleteConfirmationDialog(index);
+          return shouldDelete ?? false;
+        }
+        return false;
       },
       onDismissed: (direction) {
-        setState(() {
-          _invitations.remove(invitation);
-          _saveInvitations();
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Invitation deleted successfully'),
-            backgroundColor: Colors.teal[500],
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        // This is now handled inside _showDeleteConfirmationDialog to avoid state errors
       },
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -105,12 +96,28 @@ class _HomeScreenState extends State<HomeScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DetailsScreen(invitation: invitation),
-              ),
-            );
+            // --- MODIFIED: Navigate based on isSent status ---
+            if (invitation.isSent) {
+              // If sent, go to details
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetailsScreen(invitation: invitation),
+                ),
+              );
+            } else {
+              // If saved, go to edit screen (NewEventScreen)
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NewEventScreen(invitationToEdit: invitation),
+                ),
+              ).then((_) {
+                // Refresh the list when returning from edit screen
+                _loadInvitations();
+              });
+            }
+            // --- End of modification ---
           },
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -141,21 +148,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                        horizontal: 10, // More padding
+                        vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: isDarkMode
-                            ? AppColors.darkPrimary
-                            : AppColors.lightPrimary,
+                        // --- MODIFIED: Change color based on isSent status ---
+                        color: invitation.isSent
+                            ? (isDarkMode ? AppColors.darkPrimary : AppColors.lightPrimary).withOpacity(0.8)
+                            : (isDarkMode ? Colors.grey[700] : Colors.grey[400]),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        'Created',
+                        // --- MODIFIED: Show 'Sent' or 'Saved' ---
+                        invitation.isSent ? 'Sent' : 'Saved',
                         style: TextStyle(
-                          color: isDarkMode
-                              ? AppColors.darkPrimaryText
-                              : Colors.white,
+                          color: invitation.isSent
+                              ? (isDarkMode ? AppColors.darkPrimaryText : Colors.white)
+                              : (isDarkMode ? Colors.white70 : Colors.black87),
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
@@ -228,7 +237,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const Spacer(),
                     Text(
-                      'Tap for details',
+                      // --- MODIFIED: Show correct prompt ---
+                      invitation.isSent ? 'Tap for details' : 'Tap to edit',
                       style: TextStyle(
                         color: isDarkMode
                             ? AppColors.darkPrimary
@@ -413,15 +423,16 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _invitations.isEmpty
           ? _buildEmptyState()
           : RefreshIndicator(
-              onRefresh: _loadInvitations,
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: _invitations.length,
-                itemBuilder: (context, index) {
-                  return _buildEventCard(_invitations[index]);
-                },
-              ),
-            ),
+        onRefresh: _loadInvitations,
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          itemCount: _invitations.length,
+          itemBuilder: (context, index) {
+            return _buildEventCard(_invitations[index]);
+          },
+        ),
+      ),
     );
   }
 }
+

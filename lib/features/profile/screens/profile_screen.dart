@@ -27,8 +27,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadUserData() async {
     if (user != null) {
-      DocumentSnapshot doc =
-      await _firestore.collection('users').doc(user!.uid).get();
+      DocumentSnapshot doc = await _firestore
+          .collection('users')
+          .doc(user!.uid)
+          .get();
       setState(() {
         userData = doc.data() as Map<String, dynamic>?;
       });
@@ -40,9 +42,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-          builder: (context) =>
-              WelcomeScreen(themeMode: ValueNotifier<ThemeMode>(ThemeMode.light))),
-          (route) => false,
+        builder: (context) =>
+            WelcomeScreen(themeMode: ValueNotifier<ThemeMode>(ThemeMode.light)),
+      ),
+      (route) => false,
     );
   }
 
@@ -52,43 +55,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         title: const Text('Profile'),
         backgroundColor: AppColors.lightPrimary,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _logout,
-          ),
-        ],
       ),
       body: userData == null
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const CircleAvatar(
-              radius: 60,
-              backgroundColor: AppColors.lightPrimary,
-              child: Icon(
-                Icons.person,
-                size: 60,
-                color: Colors.white,
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const CircleAvatar(
+                    radius: 60,
+                    backgroundColor: AppColors.lightPrimary,
+                    child: Icon(Icons.person, size: 60, color: Colors.white),
+                  ),
+                  const SizedBox(height: 30),
+                  _buildProfileTextField('Name', userData?['name'] ?? 'N/A'),
+                  const SizedBox(height: 20),
+                  _buildProfileTextField('Email', userData?['email'] ?? 'N/A'),
+                  const SizedBox(height: 20),
+                  _buildProfileTextField('Phone', userData?['phone'] ?? 'N/A'),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _logout,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red, // Sets the background color to red
+                      foregroundColor: Colors.white, // Sets the text and icon color to white for contrast
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.logout),
+                        SizedBox(width: 10),
+                        Text("Log Out"),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 30),
-            _buildProfileTextField('Name', userData?['name'] ?? 'N/A'),
-            const SizedBox(height: 20),
-            _buildProfileTextField('Email', userData?['email'] ?? 'N/A'),
-            const SizedBox(height: 20),
-            _buildProfileTextField('Phone', userData?['phone'] ?? 'N/A'),
-            const SizedBox(height: 20),
-            _buildProfileTextField('Role', userData?['role'] ?? 'N/A'),
-            const SizedBox(height: 20),
-            _buildPasswordTextField(),
-            const SizedBox(height: 40),
-          ],
-        ),
-      ),
     );
   }
 
@@ -103,33 +107,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPasswordTextField() {
-    return TextField(
-      controller: TextEditingController(text: userData?['password']),
-      obscureText: _obscurePassword,
-      readOnly: true,
-      decoration: InputDecoration(
-        labelText: 'Password',
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscurePassword ? Icons.visibility_off : Icons.visibility,
-          ),
-          onPressed: () {
-            setState(() {
-              _obscurePassword = !_obscurePassword;
-            });
-          },
         ),
       ),
     );

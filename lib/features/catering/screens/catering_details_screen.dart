@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';  // NEW: Import
+import 'package:miaad/core/constants/colors.dart';
 import '../../messages/screens/message_screen.dart';
 import '../models/catering_items.dart';
 import 'vendor_screen.dart';
@@ -119,16 +120,20 @@ class CateringDetailsScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(
-                  icon: Icon(Icons.message, color: Theme.of(context).primaryColor),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MessageScreen(vendorName: item.brand),
-                      ),
-                    );
-                  },
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: AppColors.lightSecondary,
+                  child: IconButton(
+                    icon: Icon(Icons.messenger_outline_rounded, color: Theme.of(context).primaryColor,size: 28,),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MessageScreen(vendorName: item.brand),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ],
             ),

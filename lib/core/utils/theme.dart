@@ -2,147 +2,56 @@ import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 
 class AppTheme {
-  static ThemeData lightTheme = ThemeData(
-    brightness: Brightness.light,
-    primaryColor: AppColors.lightPrimary,
-    scaffoldBackgroundColor: AppColors.lightPrimaryBackground,
-    textTheme: TextTheme(
-      headlineLarge: TextStyle(color: AppColors.lightPrimaryText, fontSize: 20),
-      bodyMedium: TextStyle(color: AppColors.lightSecondaryText, fontSize: 14),
-    ),
-    appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.lightPrimary,
-      titleTextStyle: const TextStyle(color: Colors.white, fontSize: 18),
-      iconTheme: const IconThemeData(color: Colors.white),
-    ),
-    dividerColor: AppColors.lightAlternate,
-    sliderTheme: SliderThemeData(
-      activeTrackColor: AppColors.lightPrimary,
-      inactiveTrackColor: AppColors.lightAlternate,
-      thumbColor: AppColors.lightSecondaryBackground,
-      valueIndicatorColor: AppColors.lightPrimary,
-    ),
-    checkboxTheme: CheckboxThemeData(
-      fillColor: MaterialStateProperty.resolveWith<Color?>((
-        Set<MaterialState> states,
-      ) {
-        if (states.contains(MaterialState.disabled)) {
-          return null;
-        }
-        if (states.contains(MaterialState.selected)) {
-          return AppColors.lightPrimary;
-        }
-        return null;
-      }),
-    ),
-    radioTheme: RadioThemeData(
-      fillColor: MaterialStateProperty.resolveWith<Color?>((
-        Set<MaterialState> states,
-      ) {
-        if (states.contains(MaterialState.disabled)) {
-          return null;
-        }
-        if (states.contains(MaterialState.selected)) {
-          return AppColors.lightPrimary;
-        }
-        return null;
-      }),
-    ),
-    switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.resolveWith<Color?>((
-        Set<MaterialState> states,
-      ) {
-        if (states.contains(MaterialState.disabled)) {
-          return null;
-        }
-        if (states.contains(MaterialState.selected)) {
-          return AppColors.lightPrimary;
-        }
-        return null;
-      }),
-      trackColor: MaterialStateProperty.resolveWith<Color?>((
-        Set<MaterialState> states,
-      ) {
-        if (states.contains(MaterialState.disabled)) {
-          return null;
-        }
-        if (states.contains(MaterialState.selected)) {
-          return AppColors.lightPrimary;
-        }
-        return null;
-      }),
-    ),
-  );
+  // Centralized method to create a color scheme
+  static ColorScheme _colorScheme(Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+    return ColorScheme.fromSeed(
+      seedColor: AppColors.lightPrimary, // Use one primary color to generate tones
+      brightness: brightness,
+      primary: isDark ? AppColors.darkPrimary : AppColors.lightPrimary,
+      secondary: isDark ? AppColors.darkSecondary : AppColors.lightSecondary,
+      tertiary: isDark ? AppColors.darkTertiary : AppColors.lightTertiary,
+      background: isDark ? AppColors.darkPrimaryBackground : AppColors.lightPrimaryBackground,
+      surface: isDark ? AppColors.darkSecondaryBackground : AppColors.lightSecondaryBackground,
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      onTertiary: Colors.white,
+      onBackground: isDark ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+      onSurface: isDark ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+      error: Colors.red.shade400,
+      onError: Colors.white,
+    );
+  }
 
-  static ThemeData darkTheme = ThemeData(
-    brightness: Brightness.dark,
-    primaryColor: AppColors.darkPrimary,
-    scaffoldBackgroundColor: AppColors.darkPrimaryBackground,
-    textTheme: TextTheme(
-      headlineLarge: TextStyle(color: AppColors.darkPrimaryText, fontSize: 20),
-      bodyMedium: TextStyle(color: AppColors.darkSecondaryText, fontSize: 14),
-    ),
-    appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.darkPrimary,
-      titleTextStyle: const TextStyle(color: Colors.white, fontSize: 18),
-      iconTheme: const IconThemeData(color: Colors.white),
-    ),
-    dividerColor: AppColors.darkAlternate,
-    sliderTheme: SliderThemeData(
-      activeTrackColor: AppColors.darkPrimary,
-      inactiveTrackColor: AppColors.darkAlternate,
-      thumbColor: AppColors.darkSecondaryBackground,
-      valueIndicatorColor: AppColors.darkPrimary,
-    ),
-    checkboxTheme: CheckboxThemeData(
-      fillColor: MaterialStateProperty.resolveWith<Color?>((
-        Set<MaterialState> states,
-      ) {
-        if (states.contains(MaterialState.disabled)) {
+  static ThemeData _buildTheme(ColorScheme colorScheme) {
+    return ThemeData(
+      colorScheme: colorScheme,
+      primaryColor: colorScheme.primary,
+      scaffoldBackgroundColor: colorScheme.background,
+      appBarTheme: AppBarTheme(
+        backgroundColor: colorScheme.primary,
+        titleTextStyle: TextStyle(
+          color: colorScheme.onPrimary,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        iconTheme: IconThemeData(color: colorScheme.onPrimary),
+      ),
+      textTheme: const TextTheme(
+        // Define your text styles here
+      ),
+      // Other theme properties...
+      radioTheme: RadioThemeData(
+        fillColor: MaterialStateProperty.resolveWith<Color?>((states) {
+          if (states.contains(MaterialState.selected)) {
+            return colorScheme.primary;
+          }
           return null;
-        }
-        if (states.contains(MaterialState.selected)) {
-          return AppColors.darkPrimary;
-        }
-        return null;
-      }),
-    ),
-    radioTheme: RadioThemeData(
-      fillColor: MaterialStateProperty.resolveWith<Color?>((
-        Set<MaterialState> states,
-      ) {
-        if (states.contains(MaterialState.disabled)) {
-          return null;
-        }
-        if (states.contains(MaterialState.selected)) {
-          return AppColors.darkPrimary;
-        }
-        return null;
-      }),
-    ),
-    switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.resolveWith<Color?>((
-        Set<MaterialState> states,
-      ) {
-        if (states.contains(MaterialState.disabled)) {
-          return null;
-        }
-        if (states.contains(MaterialState.selected)) {
-          return AppColors.darkPrimary;
-        }
-        return null;
-      }),
-      trackColor: MaterialStateProperty.resolveWith<Color?>((
-        Set<MaterialState> states,
-      ) {
-        if (states.contains(MaterialState.disabled)) {
-          return null;
-        }
-        if (states.contains(MaterialState.selected)) {
-          return AppColors.darkPrimary;
-        }
-        return null;
-      }),
-    ),
-  );
+        }),
+      ),
+    );
+  }
+
+  static ThemeData lightTheme = _buildTheme(_colorScheme(Brightness.light));
+  static ThemeData darkTheme = _buildTheme(_colorScheme(Brightness.dark));
 }

@@ -13,11 +13,20 @@ class CateringScreen extends StatefulWidget {
 class _CateringScreenState extends State<CateringScreen> {
   bool isGridView = true;
   bool isFilterOpen = false;
+
+  // --- Active Filter State ---
   String selectedLocation = 'All';
   String selectedEventType = 'All';
   String selectedBrand = 'All';
   double budgetMin = 0;
   double budgetMax = 1000;
+
+  // --- Temporary Filter State (for sidebar) ---
+  late String _tempSelectedLocation;
+  late String _tempSelectedEventType;
+  late String _tempSelectedBrand;
+  late double _tempBudgetMin;
+  late double _tempBudgetMax;
 
   // Sample data
   final List<CateringItem> cateringItems = [
@@ -161,7 +170,15 @@ class _CateringScreenState extends State<CateringScreen> {
   void initState() {
     super.initState();
     filteredItems = cateringItems;
-    applyFilters();
+
+    // Initialize temp state to match main state
+    _tempSelectedLocation = selectedLocation;
+    _tempSelectedEventType = selectedEventType;
+    _tempSelectedBrand = selectedBrand;
+    _tempBudgetMin = budgetMin;
+    _tempBudgetMax = budgetMax;
+
+    applyFilters(); // Initial filter apply
   }
 
   void applyFilters() {
@@ -175,6 +192,29 @@ class _CateringScreenState extends State<CateringScreen> {
       }).toList();
     });
   }
+
+  // --- NEW: Function to clear all filters ---
+  void _clearFilters() {
+    setState(() {
+      // Reset temp state to defaults
+      _tempSelectedLocation = 'All';
+      _tempSelectedEventType = 'All';
+      _tempSelectedBrand = 'All';
+      _tempBudgetMin = 0;
+      _tempBudgetMax = 1000; // Using the original default
+
+      // Also reset main state to defaults
+      selectedLocation = _tempSelectedLocation;
+      selectedEventType = _tempSelectedEventType;
+      selectedBrand = _tempSelectedBrand;
+      budgetMin = _tempBudgetMin;
+      budgetMax = _tempBudgetMax;
+
+      // Apply filters
+      applyFilters();
+    });
+  }
+
 
   Color? _getChipColor(String eventType) {
     switch (eventType) {
@@ -267,14 +307,6 @@ class _CateringScreenState extends State<CateringScreen> {
                       ),
                     ),
                   ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Icon(
-                      Icons.favorite_border,
-                      color: Colors.grey,
-                    ),
-                  ),
                 ],
               ),
               Flexible( // CHANGED: Make content take remaining space
@@ -304,15 +336,6 @@ class _CateringScreenState extends State<CateringScreen> {
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          CircleAvatar(
-                            backgroundColor: Colors.teal[300],
-                            radius: 16,
-                            child: Icon(
-                              Icons.more,
-                              color: Colors.white,
-                              size: 16,
                             ),
                           ),
                         ],
@@ -396,14 +419,6 @@ class _CateringScreenState extends State<CateringScreen> {
                     ),
                   ),
                 ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Icon(
-                    Icons.favorite_border,
-                    color: Colors.grey,
-                  ),
-                ),
               ],
             ),
             Expanded(
@@ -428,15 +443,6 @@ class _CateringScreenState extends State<CateringScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        CircleAvatar(
-                          backgroundColor: Colors.teal[300],
-                          radius: 16,
-                          child: Icon(
-                            Icons.more,
-                            color: Colors.white,
-                            size: 16,
                           ),
                         ),
                       ],
@@ -537,6 +543,8 @@ class _CateringScreenState extends State<CateringScreen> {
                     onPressed: () {
                       setState(() {
                         isFilterOpen = false;
+                        // Note: Temp changes are automatically discarded
+                        // when panel is next opened.
                       });
                     },
                   ),
@@ -550,19 +558,21 @@ class _CateringScreenState extends State<CateringScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildFilterSection('Location', selectedLocation, [
+                      // --- MODIFIED: Use _temp variable and update _temp variable ---
+                      _buildFilterSection('Location', _tempSelectedLocation, [
                         'All',
                         'Riyadh',
                         'Jeddah',
                         'Dammam'
                       ], (value) {
                         setState(() {
-                          selectedLocation = value;
-                          applyFilters();
+                          _tempSelectedLocation = value;
+                          // applyFilters(); // REMOVED: Apply on button press
                         });
                       }),
                       SizedBox(height: 24),
-                      _buildFilterSection('Event Type', selectedEventType, [
+                      // --- MODIFIED: Use _temp variable and update _temp variable ---
+                      _buildFilterSection('Event Type', _tempSelectedEventType, [
                         'All',
                         'Wedding',
                         'Corporate',
@@ -572,12 +582,13 @@ class _CateringScreenState extends State<CateringScreen> {
                         'Graduation'
                       ], (value) {
                         setState(() {
-                          selectedEventType = value;
-                          applyFilters();
+                          _tempSelectedEventType = value;
+                          // applyFilters(); // REMOVED: Apply on button press
                         });
                       }),
                       SizedBox(height: 24),
-                      _buildFilterSection('Brand', selectedBrand, [
+                      // --- MODIFIED: Use _temp variable and update _temp variable ---
+                      _buildFilterSection('Brand', _tempSelectedBrand, [
                         'All',
                         'Mahaseel Albon',
                         'Elite Catering',
@@ -586,8 +597,8 @@ class _CateringScreenState extends State<CateringScreen> {
                         'Heritage Kitchen'
                       ], (value) {
                         setState(() {
-                          selectedBrand = value;
-                          applyFilters();
+                          _tempSelectedBrand = value;
+                          // applyFilters(); // REMOVED: Apply on button press
                         });
                       }),
                       SizedBox(height: 24),
@@ -600,25 +611,26 @@ class _CateringScreenState extends State<CateringScreen> {
                         ),
                       ),
                       SizedBox(height: 12),
+                      // --- MODIFIED: Use _temp variables and update _temp variables ---
                       RangeSlider(
-                        values: RangeValues(budgetMin, budgetMax),
+                        values: RangeValues(_tempBudgetMin, _tempBudgetMax),
                         min: 0,
                         max: 1200,
                         divisions: 24,
                         labels: RangeLabels(
-                          '${budgetMin.round()} SAR',
-                          '${budgetMax.round()} SAR',
+                          '${_tempBudgetMin.round()} SAR',
+                          '${_tempBudgetMax.round()} SAR',
                         ),
                         onChanged: (RangeValues values) {
                           setState(() {
-                            budgetMin = values.start;
-                            budgetMax = values.end;
-                            applyFilters();
+                            _tempBudgetMin = values.start;
+                            _tempBudgetMax = values.end;
+                            // applyFilters(); // REMOVED: Apply on button press
                           });
                         },
                       ),
                       Text(
-                        '${budgetMin.round()} - ${budgetMax.round()} SAR',
+                        '${_tempBudgetMin.round()} - ${_tempBudgetMax.round()} SAR',
                         style: TextStyle(
                           color: Colors.grey.shade600,
                           fontSize: 14,
@@ -629,32 +641,72 @@ class _CateringScreenState extends State<CateringScreen> {
                 ),
               ),
             ),
+            // --- MODIFIED: Footer with Apply and Clear buttons ---
             Container(
               padding: EdgeInsets.all(20),
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      isFilterOpen = false;
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // --- MODIFIED: Apply logic ---
+                        setState(() {
+                          // 1. Copy temp state to main state
+                          selectedLocation = _tempSelectedLocation;
+                          selectedEventType = _tempSelectedEventType;
+                          selectedBrand = _tempSelectedBrand;
+                          budgetMin = _tempBudgetMin;
+                          budgetMax = _tempBudgetMax;
+
+                          // 2. Apply filters
+                          applyFilters();
+
+                          // 3. Close panel
+                          isFilterOpen = false;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Apply Filters',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                  child: Text(
-                    'Apply Filters',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                  SizedBox(height: 12), // Spacer
+                  // --- NEW: Clear All Filters Button ---
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: OutlinedButton(
+                      onPressed: _clearFilters, // Call new function
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Theme.of(context).primaryColor, // Text color
+                        side: BorderSide(color: Theme.of(context).primaryColor), // Border color
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Clear All Filters',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
           ],
@@ -770,24 +822,56 @@ class _CateringScreenState extends State<CateringScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         actions: [
+          // New Sort Button
+          Center( // Use Center to vertically align the button with the IconButtons
+            child: InkWell(
+              onTap: _showSortOptions, // Your original function
+              borderRadius: BorderRadius.circular(8), // Makes the splash effect rounded
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey), // Optional: adds a border
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text("Sort" ,style: TextStyle(color: Colors.white),),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Center(
+            child: InkWell(
+              onTap: () { // Your original function
+                // --- MODIFIED: Initialize temp state when opening panel ---
+                setState(() {
+                  if (!isFilterOpen) {
+                    _tempSelectedLocation = selectedLocation;
+                    _tempSelectedEventType = selectedEventType;
+                    _tempSelectedBrand = selectedBrand;
+                    _tempBudgetMin = budgetMin;
+                    _tempBudgetMax = budgetMax;
+                  }
+                  isFilterOpen = !isFilterOpen;
+                });
+              },
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey), // Optional: adds a border
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text("Filter",style: TextStyle(color: Colors.white),),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
           IconButton(
             icon: Icon(isGridView ? Icons.view_list : Icons.grid_view),
             onPressed: () {
               setState(() {
                 isGridView = !isGridView;
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.sort),
-            onPressed: _showSortOptions,
-          ),
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {
-              setState(() {
-                isFilterOpen = !isFilterOpen;
               });
             },
           ),

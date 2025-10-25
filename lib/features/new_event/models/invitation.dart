@@ -1,3 +1,4 @@
+import 'dart:convert';
 import '../../contacts/models/contacts.dart';
 
 class Invitation {
@@ -9,6 +10,7 @@ class Invitation {
   final bool sendReminder;
   final String? imagePath;
   final List<Contact> guests;
+  final bool isSent; // <-- ADDED
 
   Invitation({
     required this.eventType,
@@ -19,6 +21,7 @@ class Invitation {
     required this.sendReminder,
     this.imagePath,
     required this.guests,
+    required this.isSent, // <-- ADDED
   });
 
   Map<String, dynamic> toMap() {
@@ -31,6 +34,7 @@ class Invitation {
       'sendReminder': sendReminder,
       'imagePath': imagePath,
       'guests': guests.map((g) => g.toMap()).toList(),
+      'isSent': isSent, // <-- ADDED
     };
   }
 
@@ -44,6 +48,9 @@ class Invitation {
       sendReminder: map['sendReminder'] as bool,
       imagePath: map['imagePath'] as String?,
       guests: (map['guests'] as List<dynamic>).map((m) => Contact.fromMap(m as Map<String, dynamic>)).toList(),
+      // Handle potential null 'isSent' for older data
+      isSent: map['isSent'] as bool? ?? false, // <-- MODIFIED to be safe
     );
   }
 }
+

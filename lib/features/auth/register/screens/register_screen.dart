@@ -1,8 +1,9 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 import '../../../../core/constants/colors.dart';
-import '../../login/screens/login_screen.dart';
+import '../../OTP/screens/otp_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   final String role;
@@ -24,18 +25,52 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _repasswordController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String? _errorMessage;
   bool _isLoading = false;
 
+  // --- OTP Email Sending Logic ---
+  Future<void> _sendOtpEmail(String otp, String recipientEmail) async {
+    // IMPORTANT: Replace with your email and an "App Password" from your Google Account.
+    // DO NOT use your regular password. This is still insecure for production apps.
+    final String username = 'miaad.app@gmail.com';
+    final String password = 'mkia mbyp peas qdmy';
+
+    final smtpServer = gmail(username, password);
+
+    final message = Message()
+      ..from = Address(username, 'Your App Name')
+      ..recipients.add(recipientEmail)
+      ..subject = 'Your Verification Code'
+      ..html = "<h3>Your verification code is:</h3>\n<h1>$otp</h1>";
+
+    try {
+      final sendReport = await send(message, smtpServer);
+      print('Message sent: $sendReport');
+    } on MailerException catch (e) {
+      print('Message not sent. \n$e');
+      // Handle failed email sending
+      setState(() {
+        _errorMessage = "Failed to send OTP. Please try again.";
+        _isLoading = false;
+      });
+    }
+  }
+
+  // --- Main Registration Logic ---
   void _register() async {
     if (_isLoading) return;
 
     if (_passwordController.text != _repasswordController.text) {
-      setState(() {
-        _errorMessage = "Passwords do not match";
-      });
+      setState(() => _errorMessage = "Passwords do not match");
+      return;
+    }
+
+    // Validate that all fields are filled
+    if (_nameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _phoneController.text.isEmpty ||
+        _passwordController.text.isEmpty) {
+      setState(() => _errorMessage = "Please fill in all fields.");
       return;
     }
 
@@ -44,45 +79,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _errorMessage = null;
     });
 
-    try {
-      UserCredential userCredential =
-      await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
+    // 1. Generate OTP
+    String otp = (100000 + Random().nextInt(900000)).toString();
 
-      await _firestore.collection('users').doc(userCredential.user!.uid).set({
-        'name': _nameController.text.trim(),
-        'email': _emailController.text.trim(),
-        'phone': _phoneController.text.trim(),
-        'role': widget.role,
-        'uid': userCredential.user!.uid,
-        'password': _passwordController.text.trim(), // Save password
-      });
+    // 2. Send OTP via Email
+    await _sendOtpEmail(otp, _emailController.text.trim());
 
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => LoginScreen(
-                role: widget.role,
-                themeMode: widget.themeMode,
-              )),
-        );
-      }
-    } on FirebaseAuthException catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = e.message;
-        });
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+    if (!mounted || _errorMessage != null) return;
+
+    // 3. Navigate to OTP Screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OtpScreen(
+          name: _nameController.text.trim(),
+          email: _emailController.text.trim(),
+          phone: _phoneController.text.trim(),
+          password: _passwordController.text.trim(),
+          role: widget.role,
+          otp: otp,
+          themeMode: widget.themeMode,
+        ),
+      ),
+    );
+
+    setState(() => _isLoading = false);
   }
 
   @override
@@ -190,4 +211,3 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
-
