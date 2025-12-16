@@ -1,4 +1,6 @@
 import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
@@ -115,8 +117,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   // --- Vendor Application Logic ---
-  void _submitVendorApplication() {
-    // 1. Validate Fields
+  void _submitVendorApplication() async {
+    // 1. Validate Fields (Keep your existing validation logic)
     if (_nameController.text.isEmpty ||
         _selectedCategory == null ||
         _emailController.text.isEmpty ||
@@ -139,77 +141,63 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    // 2. Show Success Dialog
-    showDialog(
-      context: context,
-      barrierDismissible: false, // User must click OK
-      builder: (BuildContext ctx) {
-        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-        return AlertDialog(
-          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          contentPadding: const EdgeInsets.all(24),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.sentiment_satisfied_alt_rounded,
-                size: 80,
-                color: isDarkMode ? Colors.white : Colors.black87,
-              ),
-              const SizedBox(height: 20),
-              Text(
-                "Thank you",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: isDarkMode ? Colors.white : Colors.black,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "Your application will be reviewed and you will receive an email from us soon",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Close dialog
-                    Navigator.of(ctx).pop();
-                    // Return back to Onboarding (Assuming Onboarding is the first route)
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isDarkMode
-                        ? AppColors.darkPrimary
-                        : AppColors.lightPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    "OK",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
+    setState(() => _isLoading = true);
+
+    try {
+      // 2. Create Authentication User
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim());
+
+      // 3. Save Vendor Data to Firestore with 'pending' status
+      await FirebaseFirestore.instance
+          .collection('vendors')
+          .doc(userCredential.user!.uid)
+          .set({
+        'uid': userCredential.user!.uid,
+        'name': _nameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'phone': "N/A", // You might want to add a phone field for vendors too
+        'category': _selectedCategory,
+        'description': _businessDescController.text.trim(),
+        'docLink': _docLinkController.text.trim(),
+        'role': 'vendor',
+        'status': 'pending', // <--- IMPORTANT
+        'submittedAt': FieldValue.serverTimestamp(),
+      });
+
+      if (!mounted) return;
+
+      // 4. Show Success Dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext ctx) {
+          final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+          return AlertDialog(
+            title: const Text("Application Submitted"),
+            content: const Text(
+                "Your application is now under review by the admin. You cannot login until it is approved."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop(); // Close dialog
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
+                child: const Text("OK"),
               )
             ],
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    } on FirebaseAuthException catch (e) {
+      setState(() => _errorMessage = e.message);
+    } catch (e) {
+      setState(() => _errorMessage = "An error occurred. Please try again.");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override

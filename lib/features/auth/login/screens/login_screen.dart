@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/constants/colors.dart';
 import '../../../../presentation/navigation/bottom_nav_bar.dart';
+import '../../../../presentation/widgets/vendor_dashboard.dart';
 import '../../register/screens/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -26,37 +28,65 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   void _login() async {
-    if (_isLoading) return; // Prevent multiple clicks
+    if (_isLoading) return;
     setState(() {
       _isLoading = true;
-      _errorMessage = null; // Clear previous errors
+      _errorMessage = null;
     });
 
     try {
-      await _auth.signInWithEmailAndPassword(
+      // 1. Authenticate
+      UserCredential cred = await _auth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => BottomNavBar(themeMode: widget.themeMode),
-          ),
-        );
+
+      if (widget.role.toLowerCase() == 'vendor') {
+        // 2. Check Vendor Status in Firestore
+        DocumentSnapshot vendorDoc = await FirebaseFirestore.instance
+            .collection('vendors')
+            .doc(cred.user!.uid)
+            .get();
+
+        if (vendorDoc.exists) {
+          String status = vendorDoc.get('status') ?? 'pending';
+
+          if (status == 'approved') {
+            if (mounted) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => VendorDashboard(themeMode: widget.themeMode),
+                ),
+              );
+            }
+          } else if (status == 'rejected') {
+            await _auth.signOut();
+            setState(() => _errorMessage = "Your application was rejected.");
+          } else {
+            await _auth.signOut();
+            setState(() => _errorMessage = "Account under review. Please wait for admin approval.");
+          }
+        } else {
+          // Fallback if they logged in as vendor but have no vendor doc
+          await _auth.signOut();
+          setState(() => _errorMessage = "Vendor profile not found.");
+        }
+      } else {
+        // Regular User Login Flow
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BottomNavBar(themeMode: widget.themeMode),
+            ),
+          );
+        }
       }
     } on FirebaseAuthException catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = e.message;
-        });
-      }
+      if (mounted) setState(() => _errorMessage = e.message);
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
