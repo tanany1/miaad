@@ -9,6 +9,10 @@ class CardDetailViewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Check if image is Asset or File
+    bool isAsset =
+        card.imagePath != null && card.imagePath!.contains('assets/');
+
     return Scaffold(
       appBar: AppBar(
         title: Text(card.eventName),
@@ -18,7 +22,14 @@ class CardDetailViewScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (card.imagePath != null)
-              Image.file(
+              isAsset
+                  ? Image.asset(
+                card.imagePath!,
+                width: double.infinity,
+                height: 250,
+                fit: BoxFit.cover,
+              )
+                  : Image.file(
                 File(card.imagePath!),
                 width: double.infinity,
                 height: 250,
@@ -62,7 +73,8 @@ class CardDetailViewScreen extends StatelessWidget {
                   ListTile(
                     leading: const Icon(Icons.calendar_today),
                     title: const Text('Date'),
-                    subtitle: Text(card.date.toLocal().toString().split(' ')[0]),
+                    subtitle:
+                    Text(card.date.toLocal().toString().split(' ')[0]),
                   ),
                 ],
               ),

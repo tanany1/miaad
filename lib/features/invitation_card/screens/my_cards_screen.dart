@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/invetation_card.dart';
-import 'card_detail_view_screen.dart'; // We will create this new screen next
+import 'card_detail_view_screen.dart';
 
 class MyCardsScreen extends StatefulWidget {
   final bool isSelectionMode;
@@ -39,7 +39,6 @@ class _MyCardsScreenState extends State<MyCardsScreen> {
     // Load new, image-based invitations
     final newInvitationsJson = prefs.getStringList('invitations') ?? [];
     for (var jsonStr in newInvitationsJson) {
-      // The updated fromJson factory now handles both formats
       allCards.add(InvitationCard.fromJson(jsonDecode(jsonStr)));
     }
 
@@ -62,19 +61,23 @@ class _MyCardsScreenState extends State<MyCardsScreen> {
         itemBuilder: (context, index) {
           final card = _savedCards[index];
 
+          // Check if image is Asset or File
+          bool isAsset = card.imagePath != null &&
+              card.imagePath!.contains('assets/');
+
           return GestureDetector(
             onTap: () {
               if (widget.isSelectionMode) {
-                // Logic for selection mode is now active
                 if (card.imagePath != null) {
                   Navigator.of(context).pop(card.imagePath);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('This card has no image to select.')),
+                    const SnackBar(
+                        content:
+                        Text('This card has no image to select.')),
                   );
                 }
               } else {
-                // Logic for normal mode (preview) is now active
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -94,7 +97,14 @@ class _MyCardsScreenState extends State<MyCardsScreen> {
                 children: [
                   // Display image if it exists
                   if (card.imagePath != null)
-                    Image.file(
+                    isAsset
+                        ? Image.asset(
+                      card.imagePath!,
+                      height: 150,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    )
+                        : Image.file(
                       File(card.imagePath!),
                       height: 150,
                       width: double.infinity,
@@ -115,18 +125,26 @@ class _MyCardsScreenState extends State<MyCardsScreen> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: card.imagePath == null ? Colors.white : null,
+                              color: card.imagePath == null
+                                  ? Colors.white
+                                  : null,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             '${card.category} - ${card.location}',
-                            style: TextStyle(color: card.imagePath == null ? Colors.white70 : null),
+                            style: TextStyle(
+                                color: card.imagePath == null
+                                    ? Colors.white70
+                                    : null),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             card.date.toLocal().toString().split(' ')[0],
-                            style: TextStyle(color: card.imagePath == null ? Colors.white70 : null),
+                            style: TextStyle(
+                                color: card.imagePath == null
+                                    ? Colors.white70
+                                    : null),
                           ),
                         ],
                       ),

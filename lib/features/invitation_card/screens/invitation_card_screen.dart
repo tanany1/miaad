@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/invetation_card.dart'; // Make sure this path is correct
-import 'card_preview_screen.dart'; // Make sure this path is correct
-import 'my_cards_screen.dart'; // Make sure this path is correct
+import '../models/invetation_card.dart';
+import 'card_preview_screen.dart';
+import 'my_cards_screen.dart';
 
 // A class to hold your card template data
 class CardTemplate {
@@ -22,13 +22,16 @@ class _InvitationCardScreenState extends State<InvitationCardScreen> {
   // --- STATE MANAGEMENT ---
   String selectedCategory = 'All';
   CardTemplate? selectedCardTemplate;
-  // REMOVED: selectedColorValue state variable is no longer needed.
 
   // --- DATA ---
-  final List<String> categories = ['All', 'Wedding', 'Graduation', 'Meeting', 'Baby Shower'];
-  // REMOVED: The list of color palettes has been removed.
+  final List<String> categories = [
+    'All',
+    'Wedding',
+    'Graduation',
+    'Meeting',
+    'Baby Shower'
+  ];
 
-  // Your list of card templates remains the same.
   final List<CardTemplate> allCardTemplates = [
     // 5 Wedding Cards
     const CardTemplate(imageAssetPath: 'assets/Wedding/1.jpeg', category: 'Wedding'),
@@ -64,7 +67,9 @@ class _InvitationCardScreenState extends State<InvitationCardScreen> {
     if (selectedCategory == 'All') {
       return allCardTemplates;
     }
-    return allCardTemplates.where((card) => card.category == selectedCategory).toList();
+    return allCardTemplates
+        .where((card) => card.category == selectedCategory)
+        .toList();
   }
 
   @override
@@ -76,13 +81,13 @@ class _InvitationCardScreenState extends State<InvitationCardScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              // This navigation correctly pushes the MyCardsScreen.
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const MyCardsScreen()),
               );
             },
-            child: const Text('My Cards', style: TextStyle(color: Colors.white)),
+            child:
+            const Text('My Cards', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -91,7 +96,8 @@ class _InvitationCardScreenState extends State<InvitationCardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('1. Select Category', style: Theme.of(context).textTheme.headlineSmall),
+            Text('1. Select Category',
+                style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -109,7 +115,8 @@ class _InvitationCardScreenState extends State<InvitationCardScreen> {
               }).toList(),
             ),
             const SizedBox(height: 24),
-            Text('2. Select a Template', style: Theme.of(context).textTheme.headlineSmall),
+            Text('2. Select a Template',
+                style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 8),
             GridView.builder(
               shrinkWrap: true,
@@ -134,26 +141,27 @@ class _InvitationCardScreenState extends State<InvitationCardScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
+                        color: isSelected
+                            ? Theme.of(context).primaryColor
+                            : Colors.transparent,
                         width: 3,
                       ),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(6),
-                      child: Image.asset(card.imageAssetPath, fit: BoxFit.cover),
+                      child:
+                      Image.asset(card.imageAssetPath, fit: BoxFit.cover),
                     ),
                   ),
                 );
               },
             ),
-
-            // REMOVED: The entire section for "3. Select Color Palette" has been deleted.
-
             const SizedBox(height: 32),
             Center(
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 12)),
-                // CHANGED: The condition now only checks if a template is selected.
+                style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 48, vertical: 12)),
                 onPressed: (selectedCardTemplate != null)
                     ? () {
                   Navigator.push(
@@ -161,8 +169,10 @@ class _InvitationCardScreenState extends State<InvitationCardScreen> {
                     MaterialPageRoute(
                       builder: (_) => CardDetailsScreen(
                         category: selectedCardTemplate!.category,
-                        // CHANGED: A default color value is now passed directly.
                         colorValue: 0xFF4FA6A8,
+                        // --- UPDATED: Pass the selected image path ---
+                        templateImagePath:
+                        selectedCardTemplate!.imageAssetPath,
                       ),
                     ),
                   );
@@ -178,14 +188,15 @@ class _InvitationCardScreenState extends State<InvitationCardScreen> {
   }
 }
 
-// No changes are needed for the CardDetailsScreen.
 class CardDetailsScreen extends StatefulWidget {
   final String category;
   final int colorValue;
+  final String templateImagePath; // Added parameter
 
   const CardDetailsScreen({
     required this.category,
     required this.colorValue,
+    required this.templateImagePath, // Require this
     super.key,
   });
 
@@ -218,49 +229,68 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
       appBar: AppBar(title: const Text('Enter Card Details')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _eventNameController,
-              decoration: const InputDecoration(labelText: 'Event Name'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _locationController,
-              decoration: const InputDecoration(labelText: 'Location'),
-            ),
-            const SizedBox(height: 16),
-            ListTile(
-              title: Text(
-                _selectedDate == null ? 'Select Date' : _selectedDate!.toLocal().toString().split(' ')[0],
-              ),
-              trailing: const Icon(Icons.calendar_today),
-              onTap: _pickDate,
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: (_eventNameController.text.isNotEmpty &&
-                  _locationController.text.isNotEmpty &&
-                  _selectedDate != null)
-                  ? () {
-                final card = InvitationCard(
-                  category: widget.category,
-                  colorValue: widget.colorValue,
-                  eventName: _eventNameController.text,
-                  location: _locationController.text,
-                  date: _selectedDate!,
-                );
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CardPreviewScreen(card: card),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Optional: Show a small preview of the selected template
+              Container(
+                height: 150,
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  image: DecorationImage(
+                    image: AssetImage(widget.templateImagePath),
+                    fit: BoxFit.cover,
                   ),
-                );
-              }
-                  : null,
-              child: const Text('Create Card'),
-            ),
-          ],
+                ),
+              ),
+              TextField(
+                controller: _eventNameController,
+                decoration: const InputDecoration(labelText: 'Event Name'),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _locationController,
+                decoration: const InputDecoration(labelText: 'Location'),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                title: Text(
+                  _selectedDate == null
+                      ? 'Select Date'
+                      : _selectedDate!.toLocal().toString().split(' ')[0],
+                ),
+                trailing: const Icon(Icons.calendar_today),
+                onTap: _pickDate,
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: (_eventNameController.text.isNotEmpty &&
+                    _locationController.text.isNotEmpty &&
+                    _selectedDate != null)
+                    ? () {
+                  final card = InvitationCard(
+                    category: widget.category,
+                    colorValue: widget.colorValue,
+                    eventName: _eventNameController.text,
+                    location: _locationController.text,
+                    date: _selectedDate!,
+                    // --- UPDATED: Pass the template path to the model ---
+                    imagePath: widget.templateImagePath,
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CardPreviewScreen(card: card),
+                    ),
+                  );
+                }
+                    : null,
+                child: const Text('Create Card'),
+              ),
+            ],
+          ),
         ),
       ),
     );
