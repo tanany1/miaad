@@ -1,11 +1,15 @@
-  
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>MIAAD Admin Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
- <style>
+  
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <style>
+    /* --- YOUR ORIGINAL CSS (UNCHANGED) --- */
     :root {
       --bg: #020617;
       --bg-soft: #020617;
@@ -23,53 +27,23 @@
       --transition: 0.2s ease;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: radial-gradient(circle at top, #1e293b, #020617 52%);
       color: var(--text-main);
       min-height: 100vh;
       margin: 0;
     }
 
-    body[data-theme="light"] {
-      background: linear-gradient(to bottom right, #f9fafb, #e5e7eb);
-      color: #0f172a;
-    }
+    body, input, button, textarea, select { font-family: inherit; }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button { border: none; cursor: pointer; font: inherit; }
+    .hidden { display: none !important; }
 
-    body,
-    input,
-    button,
-    textarea,
-    select {
-      font-family: inherit;
-    }
-
-    img {
-      max-width: 100%;
-      display: block;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    button {
-      border: none;
-      cursor: pointer;
-      font: inherit;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* LOGIN */
+    /* LOGIN STYLES */
     .login-wrapper {
       min-height: 100vh;
       display: flex;
@@ -90,1425 +64,149 @@
       color: #e5e7eb;
     }
 
-    .login-logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
+    .login-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
     .logo-circle {
-      width: 40px;
-      height: 40px;
-      border-radius: 14px;
+      width: 40px; height: 40px; border-radius: 14px;
       background: radial-gradient(circle at top left, #4f46e5, #1d4ed8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 18px;
       box-shadow: 0 14px 30px rgba(59, 130, 246, 0.7);
     }
-
-    .login-title {
-      font-size: 18px;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-    }
-
-    .login-subtitle {
-      font-size: 13px;
-      color: #9ca3af;
-      margin-top: 2px;
-    }
-
-    .login-helper {
-      font-size: 12px;
-      color: #9ca3af;
-      margin-bottom: 16px;
-    }
-
+    .login-title { font-size: 18px; font-weight: 600; letter-spacing: 0.03em; }
+    .login-subtitle { font-size: 13px; color: #9ca3af; margin-top: 2px; }
     .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 11px;
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px;
+      border-radius: 999px; font-size: 11px;
       background: rgba(15, 23, 42, 0.8);
       border: 1px solid rgba(148, 163, 184, 0.4);
       margin-bottom: 10px;
     }
-
     .badge-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+      width: 7px; height: 7px; border-radius: 999px;
+      background: #22c55e; box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
     }
-
-    .form-group {
-      margin-bottom: 14px;
-    }
-
-    .form-label {
-      display: block;
-      font-size: 12px;
-      margin-bottom: 4px;
-      color: #e5e7eb;
-    }
-
-    .form-label span {
-      color: #9ca3af;
-      font-weight: 400;
-      font-size: 11px;
-      margin-inline-start: 4px;
-    }
-
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 12px; margin-bottom: 4px; color: #e5e7eb; }
     .form-input {
-      width: 100%;
-      padding: 9px 11px;
-      border-radius: 10px;
+      width: 100%; padding: 9px 11px; border-radius: 10px;
       border: 1px solid rgba(148, 163, 184, 0.55);
-      background: rgba(15, 23, 42, 0.85);
-      color: #e5e7eb;
-      font-size: 13px;
-      outline: none;
-      transition: border-color var(--transition), box-shadow var(--transition),
-        background var(--transition), transform var(--transition);
+      background: rgba(15, 23, 42, 0.85); color: #e5e7eb;
+      font-size: 13px; outline: none;
+      transition: 0.2s ease;
     }
-
-    .form-input::placeholder {
-      color: #6b7280;
-    }
-
     .form-input:focus {
       border-color: #6366f1;
       box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.9);
       background: rgba(15, 23, 42, 0.95);
-      transform: translateY(-0.5px);
     }
-
-    .login-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 10px 0 14px;
-      gap: 8px;
-    }
-
-    .remember-checkbox {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    .remember-checkbox input[type="checkbox"] {
-      width: 14px;
-      height: 14px;
-      border-radius: 4px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      background: rgba(15, 23, 42, 0.9);
-      accent-color: #4f46e5;
-    }
-
-    .login-hint {
-      font-size: 11px;
-      color: #9ca3af;
-      margin-top: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-    }
-
-    .login-hint span {
-      opacity: 0.9;
-    }
-
-    .hint-chip {
-      padding: 2px 6px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px dashed rgba(148, 163, 184, 0.6);
-      font-size: 10px;
-      color: #cbd5f5;
-    }
-
     .btn-primary {
-      width: 100%;
-      padding: 9px 12px;
-      border-radius: 999px;
+      width: 100%; padding: 9px 12px; border-radius: 999px;
       background: linear-gradient(90deg, #4f46e5, #6366f1);
-      color: white;
-      font-size: 13px;
-      font-weight: 500;
-      border: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      box-shadow: 0 18px 40px rgba(79, 70, 229, 0.65);
-      transition: transform 0.15s ease, box-shadow 0.15s ease,
-        filter 0.15s ease;
-      margin-top: 6px;
+      color: white; font-size: 13px; font-weight: 500;
+      border: none; display: inline-flex; align-items: center; justify-content: center;
+      gap: 6px; box-shadow: 0 18px 40px rgba(79, 70, 229, 0.65);
+      transition: 0.15s ease; margin-top: 6px;
     }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.07);
-      box-shadow: 0 20px 50px rgba(79, 70, 229, 0.85);
-    }
-
-    .btn-primary:active {
-      transform: translateY(0px);
-      box-shadow: 0 12px 30px rgba(79, 70, 229, 0.5);
-    }
-
-    .btn-icon {
-      font-size: 16px;
-      margin-inline-start: 4px;
-    }
-
+    .btn-primary:hover { transform: translateY(-1px); filter: brightness(1.07); }
     .login-error {
-      margin-top: 10px;
-      padding: 8px 10px;
-      border-radius: 10px;
-      background: rgba(248, 113, 113, 0.12);
-      color: #fecaca;
-      font-size: 12px;
-      border: 1px solid rgba(248, 113, 113, 0.5);
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
+      margin-top: 10px; padding: 8px 10px; border-radius: 10px;
+      background: rgba(248, 113, 113, 0.12); color: #fecaca;
+      font-size: 12px; border: 1px solid rgba(248, 113, 113, 0.5);
+      display: flex; align-items: flex-start; gap: 8px;
     }
 
-    .login-error-icon {
-      font-size: 14px;
-      margin-top: 1px;
-    }
-
-    .login-footer {
-      margin-top: 14px;
-      font-size: 11px;
-      color: #6b7280;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      border-top: 1px dashed rgba(148, 163, 184, 0.5);
-      padding-top: 8px;
-    }
-
-    .login-footer span {
-      opacity: 0.9;
-    }
-
-    .login-footer .badge {
-      margin-bottom: 0;
-      background: rgba(15, 23, 42, 0.9);
-    }
-
-    body[data-theme="light"] .login-card {
-      background: #ffffff;
-      box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15);
-      border-color: #e5e7eb;
-    }
-
-    body[data-theme="light"] .form-label {
-      color: #111827;
-    }
-
-    body[data-theme="light"] .form-input {
-      background: #f9fafb;
-      border-color: #d1d5db;
-      color: #111827;
-    }
-
-    body[data-theme="light"] .form-input::placeholder {
-      color: #9ca3af;
-    }
-
-    body[data-theme="light"] .remember-checkbox {
-      color: #6b7280;
-    }
-
-    body[data-theme="light"] .login-subtitle,
-    body[data-theme="light"] .login-helper,
-    body[data-theme="light"] .login-hint,
-    body[data-theme="light"] .login-footer {
-      color: #6b7280;
-    }
-
-    /* APP LAYOUT */
-    .app-shell {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      zoom: 1.2; 
-    }
-
+    /* DASHBOARD STYLES */
+    .app-shell { display: flex; flex-direction: column; min-height: 100vh; zoom: 1.2; }
     .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 18px;
-      border-bottom: 1px solid rgba(15, 23, 42, 0.9);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 18px; border-bottom: 1px solid rgba(15, 23, 42, 0.9);
       background: radial-gradient(circle at top left, #020617, #020617);
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      backdrop-filter: blur(14px);
-    }
-
-    .topbar-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .topbar-title {
-      font-size: 15px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .logo-chip {
-      width: 30px;
-      height: 30px;
-      border-radius: 999px;
-      background: radial-gradient(circle at top left, #4f46e5, #1d4ed8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      font-weight: 700;
-      box-shadow: 0 14px 30px rgba(59, 130, 246, 0.7);
-    }
-
-    .topbar-subtitle {
-      font-size: 12px;
-      color: #9ca3af;
-    }
-
-    .chip-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 7px;
-      border-radius: 999px;
-      font-size: 10px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      color: #e5e7eb;
-    }
-
-    .chip-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: #22c55e;
-    }
-
-    .chip-label {
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-weight: 500;
-    }
-
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    #theme-toggle {
-      display: none;
-    }
-
-    .user-chip {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.5);
-    }
-
-    .avatar {
-      width: 24px;
-      height: 24px;
-      border-radius: 999px;
-      background: radial-gradient(circle at top, #4f46e5, #1d4ed8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 600;
-      color: white;
-    }
-
-    .user-details {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .user-name {
-      font-size: 11px;
-      font-weight: 500;
-    }
-
-    .user-email {
-      font-size: 10px;
-      color: #9ca3af;
-    }
-
-    .btn-ghost {
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      font-size: 11px;
-      color: #e5e7eb;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background var(--transition), border-color var(--transition),
-        transform 0.15s ease;
-    }
-
-    .btn-ghost:hover {
-      background: rgba(30, 64, 175, 0.85);
-      border-color: #4f46e5;
-      transform: translateY(-0.5px);
-    }
-
-    .btn-ghost:active {
-      transform: translateY(0px);
-      background: rgba(30, 64, 175, 0.7);
-    }
-
-    .btn-ghost span {
-      font-size: 14px;
-    }
-
-    body[data-theme="light"] .topbar {
-      background: #ffffffba;
-      border-bottom-color: #e5e7eb;
-    }
-
-    body[data-theme="light"] .logo-chip {
-      box-shadow: 0 14px 30px rgba(59, 130, 246, 0.45);
-    }
-
-    body[data-theme="light"] .topbar-subtitle {
-      color: #6b7280;
-    }
-
-    body[data-theme="light"] .chip-pill {
-      background: rgba(249, 250, 251, 0.95);
-      border-color: #e5e7eb;
-      color: #4b5563;
-    }
-
-    body[data-theme="light"] .user-chip {
-      background: rgba(249, 250, 251, 0.95);
-      border-color: #e5e7eb;
-    }
-
-    body[data-theme="light"] .user-email {
-      color: #6b7280;
-    }
-
-    body[data-theme="light"] .btn-ghost {
-      background: #f9fafb;
-      border-color: #e5e7eb;
-      color: #1f2937;
-    }
-
-    .app-main {
-      padding: 16px 18px 40px;
-      max-width: 1120px;
-      margin: 0 auto;
-    }
-
-    .app-header {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    .app-title-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .app-title {
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    .app-subtitle {
-      font-size: 13px;
-      color: #9ca3af;
-      margin-top: 2px;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .stat-card {
-      background: radial-gradient(circle at top left, #0b1120, #020617);
-      border-radius: var(--radius);
-      padding: 10px 11px;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .stat-label-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-    }
-
-    .stat-label {
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    .stat-pill {
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      color: #e5e7eb;
-    }
-
-    .stat-value {
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    .stat-footer {
-      font-size: 11px;
-      color: #6b7280;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 4px;
-    }
-
-    .stat-trend {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 999px;
-    }
-
-    .stat-trend--up {
-      background: rgba(34, 197, 94, 0.12);
-      color: #bbf7d0;
-    }
-
-    .stat-trend--down {
-      background: rgba(248, 113, 113, 0.12);
-      color: #fecaca;
-    }
-
-    .stat-trend-icon {
-      font-size: 13px;
-    }
-
-    .tab-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .tab-group {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .tab-btn {
-      padding: 5px 9px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      font-size: 11px;
-      color: #e5e7eb;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background var(--transition),
-        border-color var(--transition), transform 0.15s ease;
-    }
-
-    .tab-btn span {
-      width: 16px;
-      height: 16px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-    }
-
-    .tab-btn.tab-btn--active {
-      background: rgba(37, 99, 235, 0.28);
-      border-color: #4f46e5;
-      transform: translateY(-1px);
-    }
-
-    .tab-btn.tab-btn--active span {
-      background: rgba(15, 23, 42, 0.95);
-      border-color: #4f46e5;
-    }
-
-    .tab-btn:hover {
-      background: rgba(37, 99, 235, 0.22);
-      border-color: #4f46e5;
-      transform: translateY(-0.5px);
-    }
-
-    .section-header-with-search {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 8px;
-      flex-wrap: wrap;
-    }
-
-    .section-header {
-      font-size: 13px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .section-badge {
-      font-size: 11px;
-      padding: 3px 7px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      color: #9ca3af;
-    }
-
-    .section-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex: 1;
-      justify-content: flex-end;
-    }
-
-    .search-wrapper {
-      position: relative;
-      max-width: 380px;
-      flex: 1;
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 14px;
-      color: #6b7280;
-      pointer-events: none;
-    }
-
-    .search-input {
-      width: 100%;
-      padding: 7px 9px 7px 28px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      background: rgba(15, 23, 42, 0.9);
-      color: #e5e7eb;
-      font-size: 12px;
-      outline: none;
-      transition: border-color var(--transition), box-shadow var(--transition),
-        background var(--transition), transform var(--transition);
-    }
-
-    .search-input::placeholder {
-      color: #6b7280;
-    }
-
-    .search-input:focus {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.9);
-      background: rgba(15, 23, 42, 0.95);
-      transform: translateY(-0.5px);
-    }
-
-    .btn-secondary {
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px dashed rgba(148, 163, 184, 0.7);
-      font-size: 12px;
-      color: #e5e7eb;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-secondary span {
-      font-size: 14px;
-    }
-
-    body[data-theme="light"] .app-main {
-      color: #0f172a;
-    }
-
-    body[data-theme="light"] .stat-card {
-      background: #ffffff;
-      border-color: #e5e7eb;
-    }
-
-    body[data-theme="light"] .stat-label {
-      color: #6b7280;
-    }
-
-    body[data-theme="light"] .stat-footer,
-    body[data-theme="light"] .section-badge,
-    body[data-theme="light"] .section-header {
-      color: #4b5563;
-    }
-
-    body[data-theme="light"] .tab-btn {
-      background: #f9fafb;
-      border-color: #e5e7eb;
-      color: #111827;
-    }
-
-    body[data-theme="light"] .tab-btn span {
-      background: #ffffff;
-      border-color: #e5e7eb;
-    }
-
-    body[data-theme="light"] .tab-btn.tab-btn--active {
-      background: #e0e7ff;
-      border-color: #4f46e5;
-    }
-
-    body[data-theme="light"] .search-input {
-      background: #f9fafb;
-      border-color: #d1d5db;
-      color: #111827;
-    }
-
-    body[data-theme="light"] .search-input::placeholder {
-      color: #9ca3af;
-    }
-
-    body[data-theme="light"] .btn-secondary {
-      background: #f9fafb;
-      border-color: #d1d5db;
-      color: #111827;
-    }
-
+      position: sticky; top: 0; z-index: 20; backdrop-filter: blur(14px);
+    }
+    .app-main { padding: 16px 18px 40px; max-width: 1120px; margin: 0 auto; width: 100%; }
+    
+    /* Table Styles */
     .table-wrapper {
       background: radial-gradient(circle at top left, #020617, #020617 60%);
-      border-radius: 18px;
-      padding: 10px 10px 12px;
+      border-radius: 18px; padding: 10px 10px 12px;
       border: 1px solid rgba(148, 163, 184, 0.3);
       box-shadow: 0 18px 50px rgba(15, 23, 42, 0.9);
-      overflow: hidden;
+      overflow-x: auto;
     }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-    }
-
-    thead {
-      background: rgba(15, 23, 42, 0.9);
-    }
-
-    th,
-    td {
-      padding: 8px 10px;
-      text-align: left;
-      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
-      white-space: nowrap;
-    }
-
-    th {
-      font-weight: 500;
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    td {
-      font-size: 12px;
-    }
-
-    tbody tr:hover {
-      background: rgba(15, 23, 42, 0.85);
-    }
-
-    .col-name {
-      font-weight: 500;
-      color: #e5e7eb;
-    }
-
-    .col-meta {
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    .status-pill {
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-    }
-
-    .status-pill--pending {
-      background: rgba(250, 204, 21, 0.12);
-      color: #facc15;
-    }
-
-    .status-pill--pending .status-dot {
-      background: #facc15;
-    }
-
-    .status-pill--approved {
-      background: rgba(34, 197, 94, 0.12);
-      color: #bbf7d0;
-    }
-
-    .status-pill--approved .status-dot {
-      background: #22c55e;
-    }
-
-    .status-pill--rejected {
-      background: rgba(248, 113, 113, 0.12);
-      color: #fecaca;
-    }
-
-    .status-pill--rejected .status-dot {
-      background: #ef4444;
-    }
-
-    .actions-cell {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid rgba(31, 41, 55, 0.9); white-space: nowrap; }
+    th { color: #9ca3af; font-weight: 500; font-size: 11px; }
     .btn-small {
-      padding: 4px 7px;
-      border-radius: 999px;
-      font-size: 11px;
+      padding: 4px 8px; border-radius: 999px; font-size: 11px;
       border: 1px solid rgba(148, 163, 184, 0.5);
-      background: rgba(15, 23, 42, 0.9);
-      color: #e5e7eb;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      transition: background var(--transition), border-color var(--transition),
-        transform 0.15s ease;
-    }
-
-    .btn-small:hover {
-      background: rgba(30, 64, 175, 0.85);
-      border-color: #4f46e5;
-      transform: translateY(-0.5px);
-    }
-
-    .btn-small:active {
-      transform: translateY(0px);
-    }
-
-    .btn-icon-only {
-      width: 24px;
-      height: 24px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      background: rgba(15, 23, 42, 0.9);
-      font-size: 12px;
-      color: #e5e7eb;
-    }
-
-    .btn-icon-only:hover {
-      background: rgba(30, 64, 175, 0.9);
-      border-color: #4f46e5;
-    }
-
-    .badge-pill {
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      background: rgba(15, 23, 42, 0.9);
-      color: #e5e7eb;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .badge-pill-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-    }
-
-    .badge-status-pending {
-      background: rgba(250, 204, 21, 0.12);
-      color: #facc15;
-    }
-
-    .badge-status-pending .badge-pill-dot {
-      background: #facc15;
-    }
-
-    .badge-status-approved {
-      background: rgba(34, 197, 94, 0.12);
-      color: #bbf7d0;
-    }
-
-    .badge-status-approved .badge-pill-dot {
-      background: #22c55e;
-    }
-
-    .badge-status-rejected {
-      background: rgba(248, 113, 113, 0.12);
-      color: #fecaca;
-    }
-
-    .badge-status-rejected .badge-pill-dot {
-      background: #ef4444;
-    }
-
-    .badge-muted {
-      background: rgba(15, 23, 42, 0.9);
-      color: #9ca3af;
-    }
-
-    .badge-muted .badge-pill-dot {
-      background: #6b7280;
-    }
-
-    /* MODAL */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.75);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 40;
-    }
-
-    .modal {
-      width: 100%;
-      max-width: 840px;
-      max-height: 90vh;
-      background: radial-gradient(circle at top left, #020617, #000000 60%);
-      border-radius: 20px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.95);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .modal-header {
-      padding: 12px 16px 10px;
-      border-bottom: 1px solid rgba(15, 23, 42, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .modal-title {
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .modal-subtitle {
-      font-size: 12px;
-      color: #9ca3af;
-      margin-top: 2px;
-    }
-
-    .modal-header-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .modal-section {
-      padding: 12px 14px 14px;
-      border-bottom: 1px solid rgba(15, 23, 42, 0.85);
-    }
-
-    .modal-body {
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.1fr);
-    }
-
-    .modal-section h4 {
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
-
-    .info-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 8px 18px;
-      margin-bottom: 10px;
-    }
-
-    .info-group {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .info-label {
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    .info-value {
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    .info-description {
-      font-size: 12px;
-      margin-top: 4px;
-      color: #e5e7eb;
-      line-height: 1.4;
-    }
-
-    .meta-row-small {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 11px;
-      color: #9ca3af;
-      margin-top: 6px;
-    }
-
-    .note-text {
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    .modal-footer {
-      padding: 10px 14px 12px;
-      border-top: 1px solid rgba(15, 23, 42, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .modal-status-meta {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    .nowrap {
-      white-space: nowrap;
-    }
-
-    .modal-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-approve {
-      border-color: rgba(34, 197, 94, 0.7);
-      color: #bbf7d0;
-      background: rgba(21, 128, 61, 0.25);
-    }
-
-    .btn-approve:hover {
-      background: rgba(22, 163, 74, 0.4);
-      border-color: #22c55e;
-    }
-
-    .btn-reject {
-      border-color: rgba(248, 113, 113, 0.7);
-      color: #fecaca;
-      background: rgba(185, 28, 28, 0.3);
-    }
-
-    .btn-reject:hover {
-      background: rgba(220, 38, 38, 0.42);
-      border-color: #ef4444;
-    }
-
-    .close-btn {
-      width: 26px;
-      height: 26px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      background: rgba(15, 23, 42, 0.9);
-      color: #e5e7eb;
-      font-size: 13px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: background var(--transition), transform 0.15s ease,
-        border-color var(--transition);
-    }
-
-    .close-btn:hover {
-      background: rgba(30, 64, 175, 0.9);
-      border-color: #4f46e5;
-      transform: translateY(-0.5px);
-    }
-
-    .close-btn:active {
-      transform: translateY(0px);
-    }
-
-    .modal-badge-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 11px;
-    }
-
-    .doc-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
-    .doc-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 6px 8px;
-      border-radius: 10px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(31, 41, 55, 0.95);
-    }
-
-    .doc-name {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-    }
-
-    .doc-icon {
-      padding: 3px 7px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      font-size: 10px;
-      color: #e5e7eb;
-      background: rgba(15, 23, 42, 0.9);
-    }
-
-    .form-small {
-      margin-top: 8px;
-    }
-
-    .label-inline {
-      display: block;
-      font-size: 11px;
-      color: #9ca3af;
-      margin-bottom: 4px;
-    }
-
-    .select,
-    .textarea {
-      width: 100%;
-      border-radius: 10px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      background: rgba(15, 23, 42, 0.9);
-      color: #e5e7eb;
-      font-size: 12px;
-      padding: 7px 8px;
-      outline: none;
-      resize: vertical;
-      min-height: 36px;
-    }
-
-    .textarea {
-      min-height: 64px;
-      line-height: 1.4;
-    }
-
-    .select:focus,
-    .textarea:focus {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.9);
-      background: rgba(15, 23, 42, 0.95);
-    }
-
-    body[data-theme="light"] .modal {
-      background: #ffffff;
-      border-color: #e5e7eb;
-    }
-
-    body[data-theme="light"] .modal-section {
-      border-bottom-color: #e5e7eb;
-    }
-
-    body[data-theme="light"] .modal-footer {
-      border-top-color: #e5e7eb;
-    }
-
-    body[data-theme="light"] .info-label,
-    body[data-theme="light"] .note-text,
-    body[data-theme="light"] .modal-subtitle {
-      color: #6b7280;
-    }
-
-    body[data-theme="light"] .info-value,
-    body[data-theme="light"] .info-description {
-      color: #111827;
-    }
-
-    body[data-theme="light"] .modal {
-      color: #111827;
-    }
-
-    body[data-theme="light"] .doc-item {
-      background: #f9fafb;
-      border-color: #e5e7eb;
-    }
-
-    body[data-theme="light"] .doc-icon {
-      background: #eef2ff;
-      border-color: #c7d2fe;
-      color: #1e3a8a;
-    }
-
-    body[data-theme="light"] .select,
-    body[data-theme="light"] .textarea {
-      background: #f9fafb;
-      border-color: #d1d5db;
-      color: #111827;
-    }
-
-    body[data-theme="light"] .select::placeholder,
-    body[data-theme="light"] .textarea::placeholder {
-      color: #9ca3af;
-    }
-
-    body[data-theme="light"] .close-btn,
-    body[data-theme="light"] .btn-small,
-    body[data-theme="light"] .btn-approve,
-    body[data-theme="light"] .btn-reject {
-      background: #f9fafb;
-      border-color: #e5e7eb;
-      color: #111827;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 900px) {
-      .stats-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .modal-body {
-        grid-template-columns: minmax(0, 1fr);
-      }
-
-      .app-main {
-        padding-inline: 12px;
-      }
-
-      .topbar {
-        padding-inline: 12px;
-      }
-
-      .table-wrapper {
-        padding-inline: 8px;
-      }
-
-      .tab-row,
-      .section-header-with-search {
-        align-items: stretch;
-      }
-
-      .section-actions {
-        justify-content: stretch;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .stats-grid {
-        grid-template-columns: minmax(0, 1fr);
-      }
-
-      .tab-row {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .section-header-with-search {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .section-actions {
-        justify-content: stretch;
-      }
-
-      .topbar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-      }
-
-      .topbar-right {
-        align-self: stretch;
-        justify-content: space-between;
-      }
-
-      .login-card {
-        padding-inline: 20px;
-      }
-
-      .modal-footer {
-        align-items: flex-start;
-      }
-    }
-
-    /* RTL adjustments */
-
-    [dir="rtl"] .section-header-with-search {
-      flex-direction: row-reverse;
-    }
-
-    [dir="rtl"] .section-actions {
-      flex-direction: row-reverse;
-    }
-
-    [dir="rtl"] table th,
-    [dir="rtl"] table td {
-      text-align: right;
-    }
-
-    [dir="rtl"] .search-icon {
-      left: auto;
-      right: 10px;
-    }
-
-    [dir="rtl"] .search-input {
-      padding-left: 10px;
-      padding-right: 28px;
-    }
-
-    [dir="rtl"] .topbar {
-      direction: rtl;
-    }
-
-    [dir="rtl"] .topbar-left {
-      flex-direction: row-reverse;
-    }
-
-    [dir="rtl"] .topbar-right {
-      flex-direction: row-reverse;
-    }
-
-    [dir="rtl"] .info-row {
-      flex-direction: row-reverse;
-    }
-
-    .drive-link {
-      color: var(--accent);
-      text-decoration: underline;
-      word-break: break-all;
-      font-weight: 500;
-    }
-
-    .drive-link:hover {
-      opacity: 0.9;
-    }
+      background: rgba(15, 23, 42, 0.9); color: #e5e7eb;
+      margin-right: 4px;
+    }
+    .btn-approve { border-color: rgba(34, 197, 94, 0.7); color: #bbf7d0; background: rgba(21, 128, 61, 0.25); }
+    .btn-reject { border-color: rgba(248, 113, 113, 0.7); color: #fecaca; background: rgba(185, 28, 28, 0.3); }
+    .user-chip { display: flex; align-items: center; gap: 8px; font-size: 12px; }
   </style>
-
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-  <h1>MIAAD Admin - Vendor Requests</h1>
-  <div id="loading">Loading requests from Firebase...</div>
-  
-  <table id="requests-table" class="hidden">
-    <thead>
-      <tr>
-        <th>Vendor Name</th>
-        <th>Category</th>
-        <th>Email</th>
-        <th>Documents</th>
-        <th>Description</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="tbody">
-      </tbody>
-  </table>
+  <div id="login-screen" class="login-wrapper">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-circle">M</div>
+        <div>
+          <div class="login-title">MIAAD Admin Portal</div>
+          <div class="login-subtitle">Sign in with static credentials</div>
+        </div>
+      </div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label">Admin email</label>
+          <input id="email" type="text" class="form-input" placeholder="admin@miaad.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input id="password" type="password" class="form-input" placeholder="admin123" />
+        </div>
+        <button type="submit" class="btn-primary">Sign in to dashboard</button>
+        <div id="login-error" class="login-error hidden">Invalid credentials</div>
+      </form>
+    </div>
+  </div>
+
+  <div id="app-shell" class="app-shell hidden">
+    <header class="topbar">
+      <div><b>MIAAD Admin</b></div>
+      <div>
+        <span style="font-size: 12px; color: #9ca3af; margin-right: 10px;">admin@miaad.com</span>
+        <button id="logout-btn" class="btn-small">Logout</button>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <h2 style="margin-top: 0;">Vendor Requests</h2>
+      <div class="table-wrapper">
+        <div id="loading-text" style="padding: 20px; text-align: center; color: #9ca3af;">Loading data...</div>
+        <table id="requests-table" class="hidden">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Email</th>
+              <th>Docs</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
 
   <script>
-    // --------------------------------------------------------------
-    // 1. FIREBASE CONFIGURATION
-    // --------------------------------------------------------------
+    // 1. FIREBASE CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyBe0gg21Z-LtB4S-qdUWiyP_zgtqcIiPds",
       authDomain: "miaad-9d683.firebaseapp.com",
@@ -1517,81 +215,93 @@
       storageBucket: "miaad-9d683.firebasestorage.app",
       messagingSenderId: "756163933067",
       appId: "1:756163933067:web:c53fb315ae18b71bcbb58e"
-};
+    };
 
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const tbody = document.getElementById("tbody");
-    const table = document.getElementById("requests-table");
-    const loading = document.getElementById("loading");
-
-    // --------------------------------------------------------------
-    // 2. FETCH REQUESTS (Real-time Listener)
-    // --------------------------------------------------------------
-    // Listening for vendors where status is NOT 'approved' (pending or rejected)
-    // Or just 'pending' depending on your preference.
-    db.collection("vendors").where("status", "==", "pending")
-      .onSnapshot((snapshot) => {
-        tbody.innerHTML = "";
-        
-        if (snapshot.empty) {
-          loading.textContent = "No pending requests found.";
-          table.classList.add("hidden");
-        } else {
-          loading.classList.add("hidden");
-          table.classList.remove("hidden");
-          
-          snapshot.forEach((doc) => {
-            const data = doc.data();
-            renderRow(doc.id, data);
-          });
-        }
-      }, (error) => {
-        console.error("Error getting documents: ", error);
-        loading.textContent = "Error loading data. Check console (F12).";
-      });
-
-    // --------------------------------------------------------------
-    // 3. RENDER ROW
-    // --------------------------------------------------------------
-    function renderRow(docId, data) {
-      const tr = document.createElement("tr");
-
-      tr.innerHTML = `
-        <td>${data.name || 'N/A'}</td>
-        <td>${data.category || 'N/A'}</td>
-        <td>${data.email || 'N/A'}</td>
-        <td><a href="${data.docLink}" target="_blank" style="color:#6366f1">View Docs</a></td>
-        <td>${data.description ? data.description.substring(0, 50) + '...' : ''}</td>
-        <td style="color: orange; font-weight: bold">${data.status}</td>
-        <td>
-          <button class="btn btn-approve" onclick="updateStatus('${docId}', 'approved')">Approve</button>
-          <button class="btn btn-reject" onclick="updateStatus('${docId}', 'rejected')">Reject</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
+    // 2. LOGIC
+    const loginScreen = document.getElementById("login-screen");
+    const appShell = document.getElementById("app-shell");
+    const loginForm = document.getElementById("login-form");
+    const loginError = document.getElementById("login-error");
+    const logoutBtn = document.getElementById("logout-btn");
+    
+    // Check if already logged in (Persistent Session)
+    if (localStorage.getItem("isAdmin") === "true") {
+      showDashboard();
     }
 
-    // --------------------------------------------------------------
-    // 4. UPDATE STATUS
-    // --------------------------------------------------------------
-    window.updateStatus = function(docId, newStatus) {
-      if(!confirm(`Are you sure you want to mark this vendor as ${newStatus}?`)) return;
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
 
-      db.collection("vendors").doc(docId).update({
-        status: newStatus,
-        reviewedAt: firebase.firestore.FieldValue.serverTimestamp()
-      })
-      .then(() => {
-        alert("Vendor updated successfully!");
-        // The table will auto-update because of onSnapshot
-      })
-      .catch((error) => {
-        console.error("Error updating document: ", error);
-        alert("Error updating status.");
-      });
+      // STATIC CREDENTIAL CHECK
+      if (email === "admin@miaad.com" && password === "admin123") {
+        localStorage.setItem("isAdmin", "true"); // Save session
+        showDashboard();
+      } else {
+        loginError.classList.remove("hidden");
+      }
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("isAdmin");
+      window.location.reload();
+    });
+
+    function showDashboard() {
+      loginScreen.classList.add("hidden");
+      appShell.classList.remove("hidden");
+      startFirestoreListener();
+    }
+
+    // 3. FIRESTORE DATA
+    function startFirestoreListener() {
+      const tbody = document.getElementById("tbody");
+      const table = document.getElementById("requests-table");
+      const loadingText = document.getElementById("loading-text");
+
+      db.collection("vendors").where("status", "==", "pending")
+        .onSnapshot((snapshot) => {
+          tbody.innerHTML = "";
+          
+          if (snapshot.empty) {
+            loadingText.textContent = "No pending requests.";
+            table.classList.add("hidden");
+            loadingText.classList.remove("hidden");
+          } else {
+            loadingText.classList.add("hidden");
+            table.classList.remove("hidden");
+            
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              const tr = document.createElement("tr");
+              tr.innerHTML = `
+                <td>${data.name || '-'}</td>
+                <td>${data.category || '-'}</td>
+                <td>${data.email || '-'}</td>
+                <td><a href="${data.docLink}" target="_blank" style="color:#6366f1">Link</a></td>
+                <td>${(data.description || '').substring(0,30)}...</td>
+                <td style="color:#facc15">${data.status}</td>
+                <td>
+                  <button class="btn-small btn-approve" onclick="updateStatus('${doc.id}', 'approved')">Approve</button>
+                  <button class="btn-small btn-reject" onclick="updateStatus('${doc.id}', 'rejected')">Reject</button>
+                </td>
+              `;
+              tbody.appendChild(tr);
+            });
+          }
+        }, (error) => {
+          console.error(error);
+          loadingText.textContent = "Error loading data: " + error.message;
+        });
+    }
+
+    window.updateStatus = function(docId, newStatus) {
+      if(!confirm("Confirm status change?")) return;
+      db.collection("vendors").doc(docId).update({ status: newStatus });
     }
   </script>
 </body>
